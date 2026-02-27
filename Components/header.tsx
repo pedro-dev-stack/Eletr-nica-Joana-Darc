@@ -15,6 +15,7 @@ export function Header() {
     { label: "Sobre Nós", href: "#expertise" },
     { label: "Depoimentos", href: "#depoimentos" },
     { label: "Contato", href: "#contato" },
+    { label: "Garantia", href: "#Garantia"},
   ]
 
   return (

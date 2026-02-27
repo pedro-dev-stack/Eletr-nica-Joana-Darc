@@ -17,13 +17,7 @@ export default function Home() {
       <StatsSection />
       <ServicesSection />
       <ExpertiseSection />
-      <section className="flex justify-center items-center py-12 overflow-hidden" style={{marginTop: "20px"}}>
-        <Garantia />
-    </section>
-    <p style={{marginBottom: "150px"}} className="text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-3xl mx-auto text-center font-light">
-  Na <span className="text-foreground font-semibold">Eletrônica Joana Dark</span>, realizamos reparo e conserto de TVs, micro-ondas e eletrodomésticos com <span className="text-primary font-medium">garantia de serviço</span> e qualidade. 
-  Atendimento especializado, diagnóstico preciso e compromisso total com você.
-</p>
+      <Garantia />
       <TestimonialsSection />
       <CTASection />
       <ContactSection />
