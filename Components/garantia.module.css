@@ -1,0 +1,33 @@
+@keyframes spinClockwise {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes spinCounter {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+
+.circleOuter {
+  animation: spinClockwise 30s linear infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+.circleMiddle {
+  animation: spinClockwise 25s linear infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+.circleInner {
+  animation: spinClockwise 20s linear infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+.textElements {
+  animation: spinCounter 35s linear infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+}
