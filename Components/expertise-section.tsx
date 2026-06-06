@@ -60,7 +60,7 @@ export function ExpertiseSection() {
             </div>
 
             {/* Experience Badge */}
-            <div className="absolute -bottom-6 -right-6 lg:right-6 bg-primary text-primary-foreground rounded-2xl p-6 shadow-xl">
+            <div className="absolute -bottom-6 right-0 lg:right-6 bg-primary text-primary-foreground rounded-2xl p-6 shadow-xl">
               <p className="text-4xl font-serif font-bold">15+</p>
               <p className="text-sm opacity-90">
                 Anos de

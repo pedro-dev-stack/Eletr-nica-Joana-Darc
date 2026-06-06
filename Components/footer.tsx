@@ -3,6 +3,7 @@
 import { Zap, Instagram, MessageCircle } from "lucide-react";
 import Link from "next/link"
 import { useScrollReveal } from "@/hooks/use-scroll-reveal"
+import Image from "next/image"
 
 export function Footer() {
   const { ref, isVisible } = useScrollReveal({ threshold: 0.1 })
@@ -40,9 +41,13 @@ export function Footer() {
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <Link href="/" className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-                <Zap className="w-6 h-6 text-primary-foreground" />
-              </div>
+              <Image 
+                              src="/Logo_loja.png"
+                              alt="Eletrônica Joana Dark" 
+                              width={64}
+                              height={64}
+                              className="w-16 h-16 object-contain rounded-lg relative z-10"
+                            />
               <div className="flex flex-col">
                 <span className="font-serif text-lg font-bold text-foreground tracking-tight">Eletrônica</span>
                 <span className="text-xs text-primary tracking-widest uppercase -mt-1">Joana Dark</span>

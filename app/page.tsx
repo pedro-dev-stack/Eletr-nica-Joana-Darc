@@ -3,24 +3,28 @@ import { HeroSection } from "../Components/hero-section"
 import { StatsSection } from "../Components/stats-section"
 import { ServicesSection } from "../Components/services-section"
 import { ExpertiseSection } from "../Components/expertise-section"
-import Garantia from "../Components/Garantia";
+import Garantia from "../Components/Garantia"
 import { TestimonialsSection } from "../Components/testimonials-section"
 import { CTASection } from "../Components/cta-section"
 import { ContactSection } from "../Components/contact-section"
 import { Footer } from "../Components/footer"
+import { BrandsCarousel } from "@/Components/carrossel_logos"
+import { SectionFade } from "../Components/SectionWrapper"
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-screen bg-background overflow-x-clip">
       <Header />
       <HeroSection />
+
       <StatsSection />
-      <ServicesSection />
-      <ExpertiseSection />
-      <Garantia />
-      <TestimonialsSection />
+      <SectionFade><ServicesSection /></SectionFade>
+      <SectionFade><ExpertiseSection /></SectionFade>
+      <SectionFade><Garantia /></SectionFade>
+      <SectionFade><BrandsCarousel /></SectionFade>
+      <SectionFade><TestimonialsSection /></SectionFade>
       <CTASection />
-      <ContactSection />
+      <SectionFade><ContactSection /></SectionFade>
       <Footer />
     </main>
   )

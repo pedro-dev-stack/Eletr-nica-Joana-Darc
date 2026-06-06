@@ -1,159 +1,193 @@
 "use client"
 
-import { useState } from "react"
-import { Star, ChevronLeft, ChevronRight, Quote } from "lucide-react"
-import { Button } from "@/Components/ui/button"
+import { useEffect, useRef } from "react"
 import { useScrollReveal } from "@/hooks/use-scroll-reveal"
-import Image from "next/image"
+
+const testimonials = [
+  {
+    initials: "AC",
+    name: "Alcione",
+    device: "TV Smart · AOC",
+    rating: 5,
+    content:
+      "Foram maravilhosos — conseguiram dar um jeitinho e nem cobraram o serviço. Super honestos e comprometidos!",
+  },
+  {
+    initials: "EL",
+    name: "Eledi",
+    device: "Micro-ondas",
+    rating: 5,
+    content:
+      "No final não queriam cobrar… meu marido não aceitou, é claro! Parabéns pelo profissionalismo. Deus os abençoe.",
+  },
+  {
+    initials: "JR",
+    name: "Júnior",
+    device: "TV Smart",
+    rating: 5,
+    content:
+      "Se quer levar a um lugar de confiança: leve neles! É tão bom encontrar quem trabalha com honestidade.",
+  },
+  {
+    initials: "MA",
+    name: "Maria",
+    device: 'TV LG 47"',
+    rating: 5,
+    content:
+      "Foram atenciosos e rápidos no diagnóstico. Senti honestidade no atendimento e o preço foi justo. Recomendo.",
+  },
+]
+
+const belt = [...testimonials, ...testimonials]
+
+function Card({ t }: { t: (typeof testimonials)[0] }) {
+  return (
+    <div
+      className="
+        relative flex-none w-[320px] rounded-2xl border border-border bg-card
+        px-7 pt-7 pb-6 overflow-hidden
+        hover:border-amber-700/30 transition-colors duration-300
+      "
+    >
+      <span
+        aria-hidden
+        className="
+          pointer-events-none absolute right-4 top-1
+          font-serif italic text-[4.5rem] leading-none
+          text-border select-none
+        "
+      >
+        "
+      </span>
+
+      <p className="mb-4 text-amber-500 text-xs tracking-widest select-none">
+        {"★".repeat(t.rating)}
+      </p>
+
+      <blockquote className="font-serif italic text-sm leading-[1.8] text-foreground mb-6">
+        "{t.content}"
+      </blockquote>
+
+      <hr className="border-border mb-4" />
+
+      <div className="flex items-center gap-3">
+        <div
+          className="
+            h-9 w-9 shrink-0 rounded-full
+            bg-amber-50 dark:bg-amber-950/30
+            border border-amber-700/20
+            flex items-center justify-center
+            font-serif text-xs font-semibold text-amber-800 dark:text-amber-400
+          "
+        >
+          {t.initials}
+        </div>
+        <div>
+          <p className="text-[13px] font-medium text-foreground">{t.name}</p>
+          <p className="text-[11px] font-light text-muted-foreground mt-0.5">{t.device}</p>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 export function TestimonialsSection() {
   const { ref: headerRef, isVisible: headerVisible } = useScrollReveal({ threshold: 0.2 })
-  const { ref: cardRef, isVisible: cardVisible } = useScrollReveal({ threshold: 0.1 })
+  const beltRef = useRef<HTMLDivElement>(null)
+  const animFrameRef = useRef<number | null>(null)
+  const posRef = useRef(0)
+  const pausedRef = useRef(false)
 
-  const testimonials = [
-    {
-      name: "Alcione",
-      image: "/alcione_cliente.png",
-      content:
-        "Levei minha tv que estava com problema na tela, por sinal é da marca AOC (não comprem!!!) e com pouco mais de um ano de uso, e o pessoal da assistência me informou que se tivesse que trocar a tela seria difícil de encontrar. Infelizmente era esse o problema!!! :( Mas eles foram maravilhosos, conseguiram dar um jeitinho e nem cobraram o serviço. Super honestos e comprometidos!!!",
-      rating: 5,
-      device: 'TV Smart',
-    },
-    {
-      name: "Eledi",
-      image: "/Eledi_cliente.png",
-      content:
-        "Levei a porta do meu microondas para colocar a mola que quebrou… deu um trabalhão para tirar o encaixe da porta e por a mola. No final não queriam cobrar… meu marido não aceitou, é claro! Parabéns pelo profissionalismo. Deus os abençoe.",
-      rating: 5,
-      device: "Micro-ondas",
-    },
-    {
-      name: "Júnior",
-      image: "/Junior_cliente.png",
-      content:
-        "Me surpreendeu muito, Levei uma tv, enfim não compensava comparada o preço da tela nova por uma tv nova. Mas a eletrônica Joana Dark foi super atenciosa, nos explicou tudo direitinho, nos mostrou valores de peças, enfim foram super honestos. Não quero que uma nova tv estrague, mas se acontecer eu já sei que é lá que levarei, e indico. Se quer levar a um lugar de confiança: leve neles!. E isso é tão bom quando acontece, a gente encontra tanta gente querendo tirar vantagem, que a gente tem que dar parabéns pra elogiar quando faz um bom trabalho Parabéns !!!",
-      rating: 5,
-      device: 'TV Smart',
-    },
-    {
-      name: "Maria",
-      image: "/Maria_cliente.png",
-      content:
-        "Levei minha TV LG 47 para conserto. Foram atenciosos e rápidos no diagnostico. Logo providenciaram a peça para substituição. Senti honestidade no atendimento e o preço, acredito que justo haja vista ser um aparelho de boa qualidade e que nunca havia tido problema antes e estar bem conservado e cuidado. Recomendo, sem dúvida.",
-      rating: 5,
-      device: "Micro-ondas",
-    },
-  ]
+  useEffect(() => {
+    const el = beltRef.current
+    if (!el) return
 
-  const [currentIndex, setCurrentIndex] = useState(0)
+    // Velocidade em px por frame (~60fps → ~1.0 = suave)
+    const speed = 0.7
 
-  const nextTestimonial = () => {
-    setCurrentIndex((prev) => (prev + 1) % testimonials.length)
+    function getHalfWidth() {
+      return el!.scrollWidth / 2
+    }
+
+    function tick() {
+      if (!pausedRef.current) {
+        posRef.current += speed
+
+        // Quando chegou na metade (segunda cópia), volta pro zero sem salto
+        if (posRef.current >= getHalfWidth()) {
+          posRef.current = 0
+        }
+
+        el!.style.transform = `translateX(-${posRef.current}px)`
+      }
+
+      animFrameRef.current = requestAnimationFrame(tick)
+    }
+
+    animFrameRef.current = requestAnimationFrame(tick)
+
+    return () => {
+      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current)
+    }
+  }, [])
+
+  function handleMouseEnter() {
+    pausedRef.current = true
   }
 
-  const prevTestimonial = () => {
-    setCurrentIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length)
+  function handleMouseLeave() {
+    pausedRef.current = false
   }
 
   return (
-    <section id="depoimentos" className="relative py-24 bg-background">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div
-          ref={headerRef}
-          className={`text-center max-w-3xl mx-auto mb-16 transition-all duration-700 ${
-            headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-          }`}
-        >
-          <p className="text-primary text-sm tracking-widest uppercase mb-4">Depoimentos</p>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-foreground text-balance">
-            O que nossos clientes dizem
-          </h2>
-          <p className="mt-4 text-lg text-muted-foreground">
-            A satisfação dos nossos clientes é nosso maior orgulho. Veja o que eles têm a dizer.
+    <section id="depoimentos" className="py-20 sm:py-28 overflow-hidden bg-background">
+
+      {/* Header */}
+      <div
+        ref={headerRef}
+        className={`
+          text-center mb-12 px-4
+          transition-all duration-700
+          ${headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}
+        `}
+      >
+        <div className="flex items-center justify-center gap-3 mb-3">
+          <span className="h-px w-7 bg-emerald-700/50" />
+          <p className="text-[11px] tracking-[0.18em] uppercase text-emerald-700 font-normal">
+            Depoimentos
           </p>
+          <span className="h-px w-7 bg-emerald-700/50" />
         </div>
+        <h2 className="font-serif text-3xl sm:text-4xl lg:text-[2.4rem] font-semibold text-foreground leading-tight">
+          O que nossos{" "}
+          <em
+            className="text-emerald-700 font-semibold"
+            style={{ fontStyle: "italic" }}
+          >
+            clientes
+          </em>{" "}
+          dizem
+        </h2>
+      </div>
 
-        {/* Testimonial Card */}
+      {/* Belt */}
+      <div
+        className="relative w-full"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        {/* Fade nas bordas */}
+        <div className="pointer-events-none absolute inset-y-0 left-0 w-20 z-10 bg-gradient-to-r from-background to-transparent" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-20 z-10 bg-gradient-to-l from-background to-transparent" />
+
+        {/* Fita rolante */}
         <div
-          ref={cardRef}
-          className={`relative max-w-4xl mx-auto transition-all duration-700 delay-200 ${
-            cardVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-          }`}
+          ref={beltRef}
+          className="flex gap-5 w-max pb-2 will-change-transform"
         >
-          <div className="bg-card border border-border rounded-3xl p-8 sm:p-12 relative overflow-hidden">
-            {/* Quote Icon */}
-            <Quote className="absolute top-8 right-8 w-16 h-16 text-primary/10" />
-
-            {/* Content */}
-            <div className="relative z-10">
-              {/* Stars */}
-              <div className="flex gap-1 mb-6">
-                {[...Array(testimonials[currentIndex].rating)].map((_, i) => (
-                  <Star key={i} className="w-5 h-5 fill-primary text-primary" />
-                ))}
-              </div>
-
-              {/* Quote */}
-              <blockquote className="text-xl sm:text-2xl text-foreground leading-relaxed mb-8 font-serif">
-                {`"${testimonials[currentIndex].content}"`}
-              </blockquote>
-
-              {/* Device Tag */}
-              <div className="inline-block bg-secondary px-4 py-2 rounded-full mb-6">
-                <span className="text-sm text-secondary-foreground">{testimonials[currentIndex].device}</span>
-              </div>
-
-              {/* Author */}
-              <div className="flex items-center gap-4">
-                <Image
-                  src={testimonials[currentIndex].image || "/placeholder.svg"}
-                  alt={testimonials[currentIndex].name}
-                  width={56}
-                  height={56}
-                  className="rounded-full object-cover border-2 border-primary/30"
-                />
-                <div>
-                  <p className="font-semibold text-foreground">{testimonials[currentIndex].name}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Navigation */}
-          <div className="flex items-center justify-center gap-4 mt-8">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={prevTestimonial}
-              className="border-border hover:bg-card bg-transparent"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </Button>
-
-            {/* Dots */}
-            <div className="flex gap-2">
-              {testimonials.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentIndex(index)}
-                  className={`w-2 h-2 rounded-full transition-all ${
-                    index === currentIndex ? "w-8 bg-primary" : "bg-border hover:bg-muted-foreground"
-                  }`}
-                  aria-label={`Go to testimonial ${index + 1}`}
-                />
-              ))}
-            </div>
-
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={nextTestimonial}
-              className="border-border hover:bg-card bg-transparent"
-            >
-              <ChevronRight className="w-5 h-5" />
-            </Button>
-          </div>
+          {belt.map((t, i) => (
+            <Card key={i} t={t} />
+          ))}
         </div>
       </div>
     </section>
