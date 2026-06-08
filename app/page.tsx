@@ -5,7 +5,6 @@ import { ServicesSection } from "../Components/services-section"
 import { ExpertiseSection } from "../Components/expertise-section"
 import Garantia from "../Components/Garantia"
 import { TestimonialsSection } from "../Components/testimonials-section"
-import { CTASection } from "../Components/cta-section"
 import { ContactSection } from "../Components/contact-section"
 import { Footer } from "../Components/footer"
 import { BrandsCarousel } from "@/Components/carrossel_logos"
@@ -23,7 +22,6 @@ export default function Home() {
       <SectionFade><Garantia /></SectionFade>
       <SectionFade><BrandsCarousel /></SectionFade>
       <SectionFade><TestimonialsSection /></SectionFade>
-      <CTASection />
       <SectionFade><ContactSection /></SectionFade>
       <Footer />
     </main>
