@@ -1,0 +1,634 @@
+/* =========================================================================
+   SERVICES · Eletrônica Joana Dark
+   Conceito: fichas técnicas empilhadas. Cada card tem uma ilustração viva
+   (TV com pôr do sol / micro-ondas aquecendo), borda que segue o mouse e
+   efeito de pilha no scroll (scale + escurecimento, sem blur = sem travar).
+   Prefixo .sv- (sem conflito). Só transform/opacity animam (GPU).
+   ========================================================================= */
+
+.sv {
+  --sv-blue: oklch(0.62 0.22 258);
+  --sv-indigo: oklch(0.5 0.22 275);
+  --sv-cyan: oklch(0.84 0.14 200);
+  --sv-gold: oklch(0.88 0.18 95);
+  --sv-gold-d: oklch(0.76 0.17 75);
+  --sv-green: oklch(0.8 0.2 155);
+  --sv-ink: oklch(0.08 0.025 255);
+  --sv-line: oklch(1 0 0 / 0.09);
+  --sv-text: oklch(0.98 0 0);
+  --sv-muted: oklch(0.72 0.02 255);
+  --sv-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --sv-spring: cubic-bezier(0.3, 1.45, 0.5, 1);
+
+  position: relative;
+  isolation: isolate;
+  background: var(--sv-ink);
+  color: var(--sv-text);
+}
+
+/* ---------- Fundo ---------- */
+.sv-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+.sv-bg__dots {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(oklch(1 0 0 / 0.09) 1px, transparent 1.2px);
+  background-size: 30px 30px;
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 12%, #000 88%, transparent);
+  mask-image: linear-gradient(to bottom, transparent, #000 12%, #000 88%, transparent);
+}
+.sv-bg i {
+  position: absolute;
+  border-radius: 50%;
+  will-change: transform;
+}
+.sv-bg i:nth-child(2) {
+  right: -25vmax;
+  top: 4%;
+  width: 60vmax;
+  height: 60vmax;
+  background: radial-gradient(circle, oklch(0.55 0.22 262 / 0.22), transparent 62%);
+  animation: sv-drift 24s ease-in-out infinite alternate;
+}
+.sv-bg i:nth-child(3) {
+  left: -28vmax;
+  top: 52%;
+  width: 62vmax;
+  height: 62vmax;
+  background: radial-gradient(circle, oklch(0.88 0.18 95 / 0.1), transparent 62%);
+  animation: sv-drift 30s ease-in-out infinite alternate-reverse;
+}
+
+.sv-wrap {
+  position: relative;
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: clamp(5rem, 10vw, 9rem) 1rem;
+}
+@media (min-width: 640px) { .sv-wrap { padding-left: 1.5rem; padding-right: 1.5rem; } }
+@media (min-width: 1024px) { .sv-wrap { padding-left: 2rem; padding-right: 2rem; } }
+
+/* ---------- Reveal genérico ---------- */
+.sv-reveal {
+  opacity: 0;
+  transform: translateY(26px);
+}
+[data-seen="true"] > .sv-reveal,
+[data-seen="true"] .sv-reveal {
+  animation: sv-rise 0.9s var(--sv-ease) forwards;
+  animation-delay: calc(var(--d, 0) * 0.1s);
+}
+
+/* =========================================================================
+   CABEÇALHO DA SEÇÃO
+   ========================================================================= */
+.sv-head { margin-bottom: clamp(3.5rem, 7vw, 5.5rem); }
+.sv-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1.5rem;
+  padding: 0.4rem 1rem 0.4rem 0.45rem;
+  border-radius: 999px;
+  border: 1px solid var(--sv-line);
+  background: oklch(0.16 0.04 258 / 0.55);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--sv-gold);
+}
+.sv-eyebrow i {
+  display: grid;
+  place-items: center;
+  width: 1.55rem;
+  height: 1.55rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--sv-blue), var(--sv-indigo));
+}
+.sv-eyebrow svg { width: 0.8rem; height: 0.8rem; color: #fff; }
+
+.sv-head__row {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+@media (min-width: 1024px) {
+  .sv-head__row { flex-direction: row; align-items: flex-end; justify-content: space-between; }
+}
+.sv-title {
+  max-width: 44rem;
+  margin: 0;
+  font-family: var(--font-serif, serif);
+  font-size: clamp(2.5rem, 6.4vw, 4.9rem);
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+}
+.sv-title em {
+  font-style: normal;
+  background: linear-gradient(100deg, var(--sv-blue), var(--sv-cyan) 50%, var(--sv-gold));
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: sv-grad 7s ease-in-out infinite alternate;
+}
+.sv-title span { color: oklch(0.98 0 0 / 0.38); }
+.sv-lead {
+  max-width: 20rem;
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.65;
+  color: var(--sv-muted);
+}
+.sv-meta {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-top: 2.5rem;
+  font-family: ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--sv-muted);
+  white-space: nowrap;
+}
+.sv-meta i {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, oklch(0.62 0.22 258 / 0.7), var(--sv-line));
+  transform-origin: left;
+  transform: scaleX(0);
+}
+[data-seen="true"] .sv-meta i { animation: sv-line 1.4s var(--sv-ease) 0.4s forwards; }
+.sv-meta b { color: var(--sv-text); font-weight: 600; }
+
+/* =========================================================================
+   TÍTULO DE GRUPO
+   ========================================================================= */
+.sv-group { margin-bottom: clamp(4.5rem, 9vw, 7.5rem); }
+.sv-group:last-child { margin-bottom: 0; }
+.sv-group__head {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.sv-group__head span { color: var(--acc); }
+.sv-group__head i {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--acc), var(--sv-line) 60%);
+  transform-origin: left;
+  transform: scaleX(0);
+}
+[data-seen="true"].sv-group__head i,
+[data-seen="true"] .sv-group__head i { animation: sv-line 1.2s var(--sv-ease) forwards; }
+.sv-group__head svg { width: 1.1rem; height: 1.1rem; color: var(--acc); }
+.sv-tone--repair { --acc: var(--sv-cyan); --acc2: var(--sv-blue); }
+.sv-tone--sale { --acc: var(--sv-gold); --acc2: var(--sv-gold-d); }
+
+/* =========================================================================
+   PILHA (sticky + scale/dim)
+   ========================================================================= */
+.sv-stack { display: flex; flex-direction: column; }
+.sv-item {
+  --s: 1;
+  --dim: 0;
+  position: sticky;
+  top: var(--top, 5.5rem);
+  margin-bottom: 1.5rem;
+  transform: scale(var(--s));
+  transform-origin: top center;
+  will-change: transform;
+}
+.sv-item:last-child { margin-bottom: 0; }
+
+/* =========================================================================
+   CARD
+   ========================================================================= */
+.sv-card {
+  --mx: 50%;
+  --my: 0%;
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  overflow: hidden;
+  border-radius: 1.75rem;
+  border: 1px solid var(--sv-line);
+  background:
+    radial-gradient(70% 80% at 100% 0%, color-mix(in oklab, var(--acc) 12%, transparent), transparent 70%),
+    linear-gradient(165deg, oklch(0.16 0.045 258), oklch(0.105 0.03 255));
+  box-shadow: 0 40px 80px -40px oklch(0 0 0 / 0.9), inset 0 1px 0 oklch(1 0 0 / 0.06);
+  opacity: 0;
+}
+@media (min-width: 900px) {
+  .sv-card { grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr); }
+}
+.sv-item[data-seen="true"] .sv-card {
+  opacity: 1;
+  animation: sv-card-in 1s var(--sv-ease) backwards;
+}
+
+/* escurecimento da pilha (barato: só opacity) */
+.sv-card > .sv-dim {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  background: var(--sv-ink);
+  opacity: var(--dim);
+  pointer-events: none;
+}
+/* borda luminosa que segue o mouse */
+.sv-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  padding: 1px;
+  border-radius: inherit;
+  background: radial-gradient(320px circle at var(--mx) var(--my), var(--acc), var(--acc2) 40%, transparent 70%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  opacity: 0;
+  transition: opacity 0.35s;
+  pointer-events: none;
+}
+.sv-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(380px circle at var(--mx) var(--my), color-mix(in oklab, var(--acc) 14%, transparent), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.35s;
+  pointer-events: none;
+}
+.sv-card:hover::before,
+.sv-card:hover::after { opacity: 1; }
+
+/* ---------- Conteúdo ---------- */
+.sv-body {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 1.6rem;
+  order: 2;
+}
+@media (min-width: 640px) { .sv-body { padding: 2.2rem; } }
+@media (min-width: 900px) { .sv-body { order: 1; padding: 2.8rem; } }
+
+.sv-top {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  margin-bottom: 1.6rem;
+}
+.sv-ico {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, var(--acc2), var(--acc));
+  box-shadow: 0 12px 28px -10px color-mix(in oklab, var(--acc) 80%, transparent);
+  transition: transform 0.5s var(--sv-spring);
+}
+.sv-card:hover .sv-ico { transform: rotate(-8deg) scale(1.1); }
+.sv-ico svg { width: 1.45rem; height: 1.45rem; color: oklch(0.12 0.03 255); }
+.sv-tone--repair .sv-ico svg { color: #fff; }
+.sv-num {
+  font-family: ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  color: var(--sv-muted);
+}
+.sv-num b { color: var(--acc); font-weight: 600; }
+
+.sv-card-title {
+  margin: 0 0 1rem;
+  font-family: var(--font-serif, serif);
+  font-size: clamp(1.75rem, 3.4vw, 2.5rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+}
+.sv-desc {
+  max-width: 34rem;
+  margin: 0 0 1.75rem;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--sv-muted);
+}
+
+.sv-feats {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0 0 2rem;
+  padding: 0;
+  list-style: none;
+}
+@media (min-width: 640px) { .sv-feats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.sv-feat {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.6rem 0.85rem;
+  border-radius: 0.9rem;
+  border: 1px solid var(--sv-line);
+  background: oklch(1 0 0 / 0.03);
+  font-size: 0.88rem;
+  color: oklch(0.98 0 0 / 0.85);
+  transition: border-color 0.25s, background 0.25s, transform 0.3s var(--sv-spring);
+}
+.sv-feat:hover {
+  transform: translateX(4px);
+  border-color: color-mix(in oklab, var(--acc) 55%, transparent);
+  background: color-mix(in oklab, var(--acc) 8%, transparent);
+}
+.sv-feat svg { width: 1.05rem; height: 1.05rem; flex: none; color: var(--acc); }
+
+/* CTA */
+.sv-cta {
+  position: relative;
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-top: auto;
+  padding: 0.95rem 1.6rem;
+  overflow: hidden;
+  border-radius: 999px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #fff;
+  text-decoration: none;
+  background: linear-gradient(135deg, var(--acc2), var(--acc));
+  box-shadow: inset 0 0 0 1px oklch(1 0 0 / 0.2), 0 14px 34px -10px color-mix(in oklab, var(--acc) 75%, transparent);
+  transition: transform 0.3s var(--sv-spring), box-shadow 0.3s;
+}
+.sv-tone--sale .sv-cta { color: oklch(0.14 0.03 255); }
+.sv-cta:hover { transform: translateY(-3px); }
+.sv-cta:active { transform: scale(0.96); }
+.sv-cta::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 30%, oklch(1 0 0 / 0.4) 50%, transparent 70%);
+  transform: translateX(-120%);
+  animation: sv-sweep 3.6s ease-in-out infinite;
+}
+.sv-cta > * { position: relative; }
+.sv-cta svg { width: 1.1rem; height: 1.1rem; transition: transform 0.3s var(--sv-spring); }
+.sv-cta:hover svg { transform: translateX(5px); }
+.sv-cta:focus-visible { outline: 2px solid var(--acc); outline-offset: 3px; }
+
+/* =========================================================================
+   PALCO (ilustração)
+   ========================================================================= */
+.sv-stage {
+  position: relative;
+  order: 1;
+  display: grid;
+  place-items: center;
+  min-height: 15rem;
+  padding: 1.5rem;
+  overflow: hidden;
+  border-bottom: 1px solid var(--sv-line);
+  background:
+    radial-gradient(60% 60% at 50% 50%, color-mix(in oklab, var(--acc) 22%, transparent), transparent 70%),
+    oklch(0.09 0.03 255 / 0.6);
+}
+@media (min-width: 900px) {
+  .sv-stage { order: 2; min-height: 0; padding: 2rem; border-bottom: 0; border-left: 1px solid var(--sv-line); }
+}
+.sv-stage::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(oklch(1 0 0 / 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, oklch(1 0 0 / 0.045) 1px, transparent 1px);
+  background-size: 28px 28px;
+  -webkit-mask-image: radial-gradient(70% 70% at 50% 50%, #000, transparent);
+  mask-image: radial-gradient(70% 70% at 50% 50%, #000, transparent);
+}
+.sv-ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 78%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 1px dashed color-mix(in oklab, var(--acc) 35%, transparent);
+  animation: sv-orbit 36s linear infinite;
+}
+.sv-ring::after {
+  content: "";
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  margin-left: -4px;
+  border-radius: 50%;
+  background: var(--acc);
+  box-shadow: 0 0 14px 2px var(--acc);
+}
+.sv-bignum {
+  position: absolute;
+  right: 1rem;
+  bottom: -0.6rem;
+  font-family: var(--font-serif, serif);
+  font-size: clamp(5rem, 11vw, 8rem);
+  font-weight: 900;
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 1px oklch(1 0 0 / 0.08);
+  pointer-events: none;
+  user-select: none;
+}
+.sv-artwrap {
+  position: relative;
+  width: min(100%, 22rem);
+  transition: transform 0.6s var(--sv-ease);
+}
+.sv-card:hover .sv-artwrap { transform: scale(1.05) rotate(-1.2deg); }
+
+/* chips flutuantes */
+.sv-chip {
+  position: absolute;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0.9rem;
+  border-radius: 1rem;
+  border: 1px solid oklch(1 0 0 / 0.14);
+  background: oklch(0.13 0.035 255 / 0.78);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 20px 40px -16px oklch(0 0 0 / 0.7);
+  animation: sv-bob 6s ease-in-out infinite;
+}
+.sv-chip--stat { top: 1rem; left: 1rem; flex-direction: column; align-items: flex-start; gap: 0.1rem; }
+.sv-chip--stat b {
+  font-size: 1.7rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  background: linear-gradient(180deg, #fff, var(--acc));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.sv-chip--stat span { font-size: 0.66rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--sv-muted); }
+.sv-chip--badge {
+  top: 1rem;
+  right: 1rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--sv-gold);
+  border-color: color-mix(in oklab, var(--sv-gold) 45%, transparent);
+  animation-name: sv-swing;
+  transform-origin: top right;
+}
+.sv-dot {
+  position: relative;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--sv-green);
+}
+.sv-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--sv-green);
+  animation: sv-ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* =========================================================================
+   ILUSTRAÇÕES (SVG)
+   ========================================================================= */
+.sv-art { display: block; width: 100%; height: auto; overflow: visible; filter: drop-shadow(0 26px 30px oklch(0 0 0 / 0.55)); }
+.sv-art .body { fill: oklch(0.11 0.03 255); stroke: var(--acc); stroke-opacity: 0.55; stroke-width: 1.5; }
+.sv-art .stand { fill: oklch(0.16 0.04 258); stroke: var(--acc); stroke-opacity: 0.35; stroke-width: 1; }
+.sv-art .led { fill: var(--acc); filter: drop-shadow(0 0 5px var(--acc)); animation: sv-led 2s ease-in-out infinite; }
+.sv-art .shine { fill: oklch(1 0 0 / 0.07); }
+
+/* TV */
+.sv-art .scan {
+  fill: oklch(1 0 0 / 0.16);
+  animation: sv-scan 3.6s linear infinite;
+}
+.sv-art .sun {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sv-sun 4s ease-in-out infinite alternate;
+}
+.sv-art .cloud { fill: oklch(1 0 0 / 0.14); animation: sv-cloud 14s linear infinite; }
+.sv-art .cloud:nth-of-type(2) { animation-duration: 20s; animation-delay: -8s; }
+
+/* Micro-ondas */
+.sv-art .door { fill: oklch(0.075 0.025 255); stroke: oklch(1 0 0 / 0.1); }
+.sv-art .win { stroke: var(--acc); stroke-opacity: 0.3; }
+.sv-art .glow { animation: sv-glow 2.4s ease-in-out infinite alternate; }
+.sv-art .plate {
+  fill: none;
+  stroke: var(--acc);
+  stroke-width: 1.6;
+  stroke-dasharray: 9 9;
+  animation: sv-dash 2.2s linear infinite;
+}
+.sv-art .cup { fill: color-mix(in oklab, var(--acc) 25%, transparent); stroke: var(--acc); stroke-width: 1.4; }
+.sv-art .steam path {
+  fill: none;
+  stroke: oklch(1 0 0 / 0.45);
+  stroke-width: 2;
+  stroke-linecap: round;
+  transform-box: fill-box;
+  animation: sv-steam 3s ease-in-out infinite;
+}
+.sv-art .steam path:nth-child(2) { animation-delay: 0.9s; }
+.sv-art .steam path:nth-child(3) { animation-delay: 1.8s; }
+.sv-art .panel { fill: oklch(0.15 0.04 258); stroke: oklch(1 0 0 / 0.1); }
+.sv-art .disp { fill: oklch(0.07 0.03 220); stroke: var(--sv-cyan); stroke-opacity: 0.5; }
+.sv-art .digits {
+  font-family: ui-monospace, monospace;
+  font-size: 14px;
+  font-weight: 700;
+  fill: var(--sv-cyan);
+  filter: drop-shadow(0 0 4px var(--sv-cyan));
+}
+.sv-art .colon { animation: sv-blink 1s steps(2, start) infinite; }
+.sv-art .btn { fill: oklch(1 0 0 / 0.14); }
+.sv-art .start { fill: var(--acc); filter: drop-shadow(0 0 6px var(--acc)); }
+
+/* pausa tudo fora da tela (economiza CPU/GPU) */
+.sv-item[data-live="false"] .sv-art *,
+.sv-item[data-live="false"] .sv-ring,
+.sv-item[data-live="false"] .sv-chip,
+.sv-item[data-live="false"] .sv-cta::before { animation-play-state: paused; }
+
+/* =========================================================================
+   KEYFRAMES
+   ========================================================================= */
+@keyframes sv-rise { to { opacity: 1; transform: none; } }
+@keyframes sv-card-in { from { opacity: 0; transform: translateY(60px) scale(0.97); } }
+@keyframes sv-line { to { transform: scaleX(1); } }
+@keyframes sv-grad { to { background-position: 100% 0; } }
+@keyframes sv-drift { to { transform: translate3d(7vmax, 5vmax, 0) scale(1.12); } }
+@keyframes sv-sweep { 0% { transform: translateX(-120%); } 55%, 100% { transform: translateX(120%); } }
+@keyframes sv-orbit {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+@keyframes sv-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-9px); } }
+@keyframes sv-swing { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(4deg); } }
+@keyframes sv-ping { 75%, 100% { transform: scale(2.6); opacity: 0; } }
+@keyframes sv-led { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+@keyframes sv-scan { from { transform: translateY(0); } to { transform: translateY(150px); } }
+@keyframes sv-sun { to { transform: scale(1.18); } }
+@keyframes sv-cloud { from { transform: translateX(-60px); } to { transform: translateX(300px); } }
+@keyframes sv-glow { from { opacity: 0.45; } to { opacity: 1; } }
+@keyframes sv-dash { to { stroke-dashoffset: -36; } }
+@keyframes sv-steam {
+  0% { transform: translateY(6px); opacity: 0; }
+  40% { opacity: 1; }
+  100% { transform: translateY(-14px); opacity: 0; }
+}
+@keyframes sv-blink { 50% { opacity: 0; } }
+
+/* =========================================================================
+   Acessibilidade: menos movimento
+   ========================================================================= */
+@media (prefers-reduced-motion: reduce) {
+  .sv *,
+  .sv *::before,
+  .sv *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+  .sv-reveal, .sv-card { opacity: 1; transform: none; }
+  .sv-meta i, .sv-group__head i { transform: scaleX(1); }
+  .sv-item { --s: 1 !important; --dim: 0 !important; }
+}

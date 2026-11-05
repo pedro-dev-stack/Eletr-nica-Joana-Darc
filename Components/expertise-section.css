@@ -1,0 +1,547 @@
+/* =========================================================================
+   EXPERTISE v2 · Eletrônica Joana Dark
+   Foto com revelação em wipe + parallax + selo giratório, e acordeão
+   que troca sozinho (barra de progresso, pausa no hover/fora da tela).
+   - Sem grid de fundo, sem scanner/mira, sem gradientes, sem blur/glow.
+   - Só transform/opacity animam em loop (GPU). will-change só enquanto visível.
+   Prefixo .ex- (sem conflito).
+   ========================================================================= */
+
+.ex {
+  --ex-blue: oklch(0.62 0.22 258);
+  --ex-violet: oklch(0.68 0.2 300);
+  --ex-gold: oklch(0.88 0.18 95);
+  --ex-green: oklch(0.8 0.2 155);
+  --ex-ink: oklch(0.11 0.025 256);
+  --ex-panel: oklch(0.15 0.03 258);
+  --ex-line: oklch(1 0 0 / 0.1);
+  --ex-text: oklch(0.98 0 0);
+  --ex-muted: oklch(0.72 0.02 255);
+  --ex-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --ex-spring: cubic-bezier(0.3, 1.45, 0.5, 1);
+
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: var(--ex-ink);
+  color: var(--ex-text);
+  border-block: 1px solid var(--ex-line);
+}
+
+.ex-wrap {
+  position: relative;
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: clamp(5rem, 10vw, 8.5rem) 1rem;
+}
+@media (min-width: 640px) { .ex-wrap { padding-left: 1.5rem; padding-right: 1.5rem; } }
+@media (min-width: 1024px) { .ex-wrap { padding-left: 2rem; padding-right: 2rem; } }
+
+.ex-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4.5rem;
+  align-items: start;
+}
+@media (min-width: 1024px) {
+  .ex-grid { grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr); }
+}
+
+/* ---------- Reveal ---------- */
+.ex-rv { opacity: 0; transform: translate3d(0, 26px, 0); }
+[data-seen="true"] .ex-rv {
+  animation: ex-rise 0.9s var(--ex-ease) forwards;
+  animation-delay: calc(var(--d, 0) * 0.09s);
+}
+
+/* =========================================================================
+   COLUNA DA IMAGEM
+   ========================================================================= */
+.ex-media {
+  --px: 0;
+  --py: 0;
+  position: relative;
+  padding: 0.9rem 0.9rem 2.5rem 0;
+}
+@media (min-width: 1024px) {
+  .ex-media { position: sticky; top: 6.5rem; }
+}
+
+/* molduras atrás da foto */
+.ex-frame {
+  position: absolute;
+  inset: 0 0 1.6rem 0;
+  border-radius: 2rem;
+  border: 1px solid var(--ex-line);
+  pointer-events: none;
+  transition: transform 0.5s var(--ex-ease);
+}
+.ex-frame--a {
+  transform: translate3d(calc(var(--px) * -14px - 0.7rem), calc(var(--py) * -10px - 0.7rem), 0);
+}
+.ex-frame--b {
+  border-color: oklch(0.62 0.22 258 / 0.45);
+  transform: translate3d(calc(var(--px) * 10px + 0.5rem), calc(var(--py) * 8px + 0.5rem), 0);
+}
+
+.ex-photo {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: 1.75rem;
+  border: 1px solid var(--ex-line);
+  background: var(--ex-panel);
+  clip-path: inset(0 0 100% 0 round 1.75rem);
+  transform: translate3d(calc(var(--px) * 4px), calc(var(--py) * 3px), 0);
+  transition: transform 0.5s var(--ex-ease);
+}
+@media (min-width: 1024px) {
+  .ex-photo { aspect-ratio: 1 / 1.06; }
+}
+[data-seen="true"] .ex-photo {
+  animation: ex-wipe 1.3s var(--ex-ease) 0.1s forwards;
+}
+.ex-photo img {
+  object-fit: cover;
+  transform: scale(1.06) translate3d(calc(var(--px) * -10px), calc(var(--py) * -8px), 0);
+}
+[data-live="true"] .ex-photo img {
+  will-change: scale;
+  animation: ex-kenburns 22s ease-in-out infinite alternate;
+}
+
+/* legenda em barra sólida (sem overlay degradê) */
+.ex-cap {
+  position: absolute;
+  left: 1rem;
+  right: 1rem;
+  bottom: 1rem;
+  padding: 0.85rem 1.1rem;
+  border-radius: 1rem;
+  border: 1px solid var(--ex-line);
+  background: oklch(0.11 0.025 256 / 0.92);
+}
+.ex-cap b {
+  display: block;
+  margin-bottom: 0.15rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--ex-gold);
+}
+.ex-cap span {
+  font-size: 0.85rem;
+  color: var(--ex-muted);
+}
+
+/* chip flutuante (sólido) */
+.ex-chip {
+  position: absolute;
+  z-index: 3;
+  top: 38%;
+  left: -1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.6rem 0.95rem 0.6rem 0.6rem;
+  border-radius: 1rem;
+  border: 1px solid var(--ex-line);
+  background: var(--ex-panel);
+}
+[data-live="true"] .ex-chip {
+  will-change: transform;
+  animation: ex-bob 6.5s ease-in-out infinite;
+}
+.ex-chip i {
+  display: grid;
+  place-items: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 0.7rem;
+  background: var(--ex-blue);
+}
+.ex-chip svg { width: 1.05rem; height: 1.05rem; color: #fff; }
+.ex-chip b { display: block; font-size: 0.82rem; line-height: 1.15; }
+.ex-chip span { font-size: 0.7rem; color: var(--ex-muted); }
+@media (max-width: 639px) { .ex-chip { left: -0.2rem; } }
+
+/* selo giratório */
+.ex-seal {
+  position: absolute;
+  z-index: 4;
+  right: -0.4rem;
+  bottom: 0;
+  width: 8.6rem;
+  height: 8.6rem;
+  transition: transform 0.5s var(--ex-spring);
+}
+@media (min-width: 1024px) { .ex-seal { right: 1rem; width: 9.4rem; height: 9.4rem; } }
+@media (hover: hover) {
+  .ex-seal:hover { transform: scale(1.06) rotate(-6deg); }
+  .ex-seal:hover .ring { animation-duration: 6s; }
+}
+.ex-seal svg { width: 100%; height: 100%; overflow: visible; }
+.ex-seal .disc { fill: var(--ex-blue); stroke: oklch(1 0 0 / 0.25); stroke-width: 1.2; }
+.ex-seal .ring {
+  transform-box: view-box;
+  transform-origin: 60px 60px;
+}
+[data-live="true"] .ex-seal .ring {
+  will-change: transform;
+  animation: ex-spin 18s linear infinite;
+}
+.ex-seal .ring text {
+  font-size: 7.4px;
+  font-weight: 700;
+  fill: oklch(1 0 0 / 0.92);
+  text-transform: uppercase;
+}
+.ex-seal .num {
+  font-family: var(--font-serif, serif);
+  font-size: 30px;
+  font-weight: 800;
+  fill: #fff;
+}
+.ex-seal .yrs {
+  font-size: 7.5px;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  fill: var(--ex-gold);
+}
+
+/* =========================================================================
+   COLUNA DE CONTEÚDO
+   ========================================================================= */
+.ex-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 1.4rem;
+  padding: 0.4rem 1rem 0.4rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid var(--ex-line);
+  background: var(--ex-panel);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ex-gold);
+}
+.ex-dot {
+  position: relative;
+  flex: none;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: var(--ex-green);
+}
+.ex-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: inherit;
+}
+[data-live="true"] .ex-dot::after {
+  animation: ex-ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+.ex-title {
+  margin: 0 0 1.25rem;
+  font-family: var(--font-serif, serif);
+  font-size: clamp(2.2rem, 4.8vw, 3.7rem);
+  font-weight: 800;
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+.ex-title em { font-style: normal; color: var(--ex-gold); }
+
+.ex-lead {
+  max-width: 36rem;
+  margin: 0 0 2.25rem;
+  font-size: 1.05rem;
+  line-height: 1.75;
+  color: var(--ex-muted);
+}
+.ex-lead strong { color: var(--ex-text); font-weight: 600; }
+
+/* ---------- Acordeão ---------- */
+.ex-list {
+  --dur: 6s;
+  display: grid;
+  gap: 0.5rem;
+  margin: 0 0 2.5rem;
+  padding: 0;
+  list-style: none;
+}
+.ex-row {
+  --c: var(--ex-blue);
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.25rem;
+  border: 1px solid transparent;
+  transition: background-color 0.4s, border-color 0.4s;
+}
+.ex-row:nth-child(2) { --c: var(--ex-gold); }
+.ex-row:nth-child(3) { --c: var(--ex-violet); }
+.ex-row:nth-child(4) { --c: var(--ex-green); }
+@media (hover: hover) {
+  .ex-row:hover { background: oklch(1 0 0 / 0.03); }
+}
+.ex-row[data-active="true"] {
+  background: var(--ex-panel);
+  border-color: color-mix(in oklab, var(--c) 45%, transparent);
+}
+
+/* barra lateral */
+.ex-row::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 18%;
+  bottom: 18%;
+  width: 3px;
+  border-radius: 3px;
+  background: var(--c);
+  transform: scaleY(0);
+  transition: transform 0.45s var(--ex-ease);
+}
+.ex-row[data-active="true"]::before { transform: scaleY(1); }
+
+.ex-btn {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  padding: 1rem 1.1rem;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.ex-btn:focus-visible {
+  outline: 2px solid var(--c);
+  outline-offset: -2px;
+  border-radius: 1.25rem;
+}
+.ex-ico {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 1rem;
+  background: oklch(1 0 0 / 0.06);
+  color: var(--ex-muted);
+  transition: background-color 0.4s, color 0.4s, transform 0.5s var(--ex-spring);
+}
+.ex-ico svg { width: 1.4rem; height: 1.4rem; }
+.ex-row[data-active="true"] .ex-ico {
+  background: var(--c);
+  color: oklch(0.12 0.03 255);
+  transform: rotate(-6deg) scale(1.06);
+}
+.ex-row:nth-child(1)[data-active="true"] .ex-ico,
+.ex-row:nth-child(3)[data-active="true"] .ex-ico { color: #fff; }
+
+.ex-row-title {
+  flex: 1;
+  min-width: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: oklch(0.98 0 0 / 0.78);
+  transition: color 0.3s;
+}
+.ex-row[data-active="true"] .ex-row-title { color: var(--ex-text); }
+@media (hover: hover) {
+  .ex-row:hover .ex-row-title { color: var(--ex-text); }
+}
+
+.ex-plus {
+  position: relative;
+  flex: none;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 50%;
+  border: 1px solid var(--ex-line);
+  transition: transform 0.45s var(--ex-spring), border-color 0.3s, background-color 0.3s;
+}
+.ex-plus::before,
+.ex-plus::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0.7rem;
+  height: 2px;
+  margin: -1px 0 0 -0.35rem;
+  border-radius: 2px;
+  background: var(--ex-muted);
+  transition: transform 0.35s var(--ex-ease), background-color 0.3s;
+}
+.ex-plus::after { transform: rotate(90deg); }
+.ex-row[data-active="true"] .ex-plus {
+  transform: rotate(180deg);
+  border-color: var(--c);
+  background: color-mix(in oklab, var(--c) 18%, transparent);
+}
+.ex-row[data-active="true"] .ex-plus::before,
+.ex-row[data-active="true"] .ex-plus::after { background: var(--c); }
+.ex-row[data-active="true"] .ex-plus::after { transform: rotate(0deg); }
+
+.ex-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.5s var(--ex-ease);
+}
+.ex-row[data-active="true"] .ex-panel { grid-template-rows: 1fr; }
+.ex-panel > div { overflow: hidden; }
+.ex-panel p {
+  margin: 0;
+  padding: 0 1.1rem 1.35rem;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--ex-muted);
+  opacity: 0;
+  transform: translate3d(0, -6px, 0);
+  transition: opacity 0.4s, transform 0.5s var(--ex-ease);
+}
+@media (min-width: 640px) {
+  .ex-panel p { padding-left: 5.2rem; padding-right: 1.6rem; }
+}
+.ex-row[data-active="true"] .ex-panel p {
+  opacity: 1;
+  transform: none;
+  transition-delay: 0.12s;
+}
+
+/* barra de progresso (dispara o próximo item no animationend) */
+.ex-prog {
+  position: absolute;
+  left: 1.1rem;
+  right: 1.1rem;
+  bottom: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: oklch(1 0 0 / 0.07);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.ex-row[data-active="true"] .ex-prog { opacity: 1; }
+.ex-prog i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--c);
+  transform: scaleX(0);
+  transform-origin: left;
+}
+.ex-row[data-active="true"] .ex-prog i {
+  animation: ex-prog var(--dur) linear forwards;
+}
+.ex-list[data-paused="true"] .ex-prog i { animation-play-state: paused; }
+
+/* ---------- Diferenciais ---------- */
+.ex-diff__title {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  margin: 0 0 1rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ex-muted);
+}
+.ex-diff__title::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--ex-line);
+}
+.ex-diff__grid {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+@media (min-width: 480px) {
+  .ex-diff__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+.ex-diff__item {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 0.95rem;
+  border: 1px solid var(--ex-line);
+  background: var(--ex-panel);
+  font-size: 0.88rem;
+  color: oklch(0.98 0 0 / 0.88);
+  transition: transform 0.35s var(--ex-spring), border-color 0.25s;
+}
+@media (hover: hover) {
+  .ex-diff__item:hover {
+    transform: translate3d(0, -3px, 0);
+    border-color: oklch(0.8 0.2 155 / 0.55);
+  }
+}
+.ex-check { width: 1.35rem; height: 1.35rem; flex: none; overflow: visible; }
+.ex-check circle {
+  fill: oklch(0.8 0.2 155 / 0.12);
+  stroke: var(--ex-green);
+  stroke-width: 1.6;
+  stroke-dasharray: 63;
+  stroke-dashoffset: 63;
+}
+.ex-check path {
+  fill: none;
+  stroke: var(--ex-green);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 14;
+  stroke-dashoffset: 14;
+}
+[data-seen="true"] .ex-check circle {
+  animation: ex-draw 0.7s var(--ex-ease) forwards;
+  animation-delay: calc(0.9s + var(--k) * 0.12s);
+}
+[data-seen="true"] .ex-check path {
+  animation: ex-draw 0.45s var(--ex-ease) forwards;
+  animation-delay: calc(1.2s + var(--k) * 0.12s);
+}
+
+/* =========================================================================
+   KEYFRAMES
+   ========================================================================= */
+@keyframes ex-rise { to { opacity: 1; transform: none; } }
+@keyframes ex-wipe { to { clip-path: inset(0 0 0 0 round 1.75rem); } }
+@keyframes ex-kenburns { to { scale: 1.1; } }
+@keyframes ex-ping { 75%, 100% { transform: scale(2.6); opacity: 0; } }
+@keyframes ex-bob { 0%, 100% { transform: translate3d(0, 0, 0); } 50% { transform: translate3d(0, -10px, 0); } }
+@keyframes ex-spin { to { transform: rotate(360deg); } }
+@keyframes ex-prog { to { transform: scaleX(1); } }
+@keyframes ex-draw { to { stroke-dashoffset: 0; } }
+
+/* =========================================================================
+   Acessibilidade: menos movimento (sem autoplay: barra fica cheia)
+   ========================================================================= */
+@media (prefers-reduced-motion: reduce) {
+  .ex *,
+  .ex *::before,
+  .ex *::after {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+    will-change: auto !important;
+  }
+  .ex-rv { opacity: 1; transform: none; }
+  .ex-photo { clip-path: none; }
+  .ex-prog i { transform: scaleX(1); }
+  .ex-check circle, .ex-check path { stroke-dashoffset: 0; }
+}

@@ -1,0 +1,661 @@
+/* =========================================================================
+   HERO · Eletrônica Joana Dark
+   Conceito: "oficina tech" — piso em perspectiva e foto com tilt 3D.
+   (Sem órbitas, sem scanner, sem marcas.)
+   Prefixo .jh- (sem conflito). Só transform/opacity animam (GPU).
+   will-change só enquanto a hero está visível (data-live).
+   ========================================================================= */
+
+.jh {
+  --jh-blue: oklch(0.62 0.22 258);
+  --jh-indigo: oklch(0.5 0.22 275);
+  --jh-cyan: oklch(0.84 0.14 200);
+  --jh-gold: oklch(0.88 0.18 95);
+  --jh-green: oklch(0.8 0.22 150);
+  --jh-ink: oklch(0.075 0.025 255);
+  --jh-line: oklch(1 0 0 / 0.1);
+  --jh-text: oklch(0.98 0 0);
+  --jh-muted: oklch(0.74 0.02 255);
+  --jh-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --jh-spring: cubic-bezier(0.3, 1.45, 0.5, 1);
+  --p: 0;
+  --mx: 60vw;
+  --my: 30vh;
+
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+  overflow: hidden;
+  background: var(--jh-ink);
+  color: var(--jh-text);
+}
+
+/* =========================================================================
+   FUNDO
+   ========================================================================= */
+.jh-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* aurora (gradientes radiais animados: barato, sem blur) */
+.jh-aurora {
+  position: absolute;
+  inset: 0;
+  transform: translate3d(0, calc(var(--p) * 90px), 0);
+}
+.jh-aurora i {
+  position: absolute;
+  width: 75vmax;
+  height: 75vmax;
+  border-radius: 50%;
+}
+.jh[data-live="true"] .jh-aurora i { will-change: transform; }
+.jh-aurora i:nth-child(1) {
+  left: -25vmax;
+  top: -10vmax;
+  background: radial-gradient(circle, oklch(0.55 0.23 262 / 0.38), transparent 62%);
+  animation: jh-drift-a 22s ease-in-out infinite alternate;
+}
+.jh-aurora i:nth-child(2) {
+  right: -30vmax;
+  top: 15vmax;
+  background: radial-gradient(circle, oklch(0.7 0.14 200 / 0.26), transparent 62%);
+  animation: jh-drift-b 26s ease-in-out infinite alternate;
+}
+.jh-aurora i:nth-child(3) {
+  left: 25vmax;
+  bottom: -45vmax;
+  background: radial-gradient(circle, oklch(0.85 0.17 95 / 0.13), transparent 62%);
+  animation: jh-drift-a 30s ease-in-out infinite alternate-reverse;
+}
+
+/* piso em perspectiva que corre para frente */
+.jh-floor {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 58%;
+  overflow: hidden;
+  perspective: 520px;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 38%, #000 70%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, #000 38%, #000 70%, transparent 100%);
+  opacity: 0.55;
+}
+.jh-floor__grid {
+  position: absolute;
+  left: -50%;
+  right: -50%;
+  top: 0;
+  height: 280%;
+  transform-origin: 50% 0;
+  transform: rotateX(64deg);
+  background-image:
+    linear-gradient(oklch(0.84 0.14 200 / 0.35) 1px, transparent 1px),
+    linear-gradient(90deg, oklch(0.84 0.14 200 / 0.35) 1px, transparent 1px);
+  background-size: 64px 64px;
+  animation: jh-floor 2.6s linear infinite;
+}
+.jh[data-live="true"] .jh-floor__grid { will-change: transform; }
+
+/* trilhas de circuito com pulsos de energia */
+.jh-traces {
+  position: absolute;
+  left: 0;
+  top: 16%;
+  width: min(46vw, 34rem);
+  opacity: 0.55;
+}
+.jh-traces path {
+  fill: none;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.jh-traces .base { stroke: oklch(0.62 0.22 258 / 0.3); }
+.jh-traces .pulse {
+  stroke: var(--jh-cyan);
+  stroke-dasharray: 14 100;
+  stroke-dashoffset: 14;
+  filter: drop-shadow(0 0 4px var(--jh-cyan));
+  animation: jh-pulse 3.6s linear infinite;
+}
+.jh-traces .pulse:nth-of-type(2) { animation-delay: 1.2s; stroke: var(--jh-gold); filter: drop-shadow(0 0 4px var(--jh-gold)); }
+.jh-traces .pulse:nth-of-type(3) { animation-delay: 2.1s; }
+.jh-traces circle { fill: var(--jh-ink); stroke: oklch(0.62 0.22 258 / 0.7); stroke-width: 1.4; }
+@media (max-width: 767px) {
+  .jh-traces { display: none; }
+}
+
+/* holofote do cursor */
+.jh-spot {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 560px;
+  height: 560px;
+  margin: -280px 0 0 -280px;
+  border-radius: 50%;
+  background: radial-gradient(circle, oklch(0.84 0.14 200 / 0.13), transparent 62%);
+  transform: translate3d(var(--mx), var(--my), 0);
+  transition: transform 0.45s var(--jh-ease), opacity 0.4s;
+  opacity: 0;
+}
+@media (hover: hover) {
+  .jh:hover .jh-spot { opacity: 1; }
+}
+
+/* fora da tela: pausa todos os loops decorativos */
+.jh[data-live="false"] .jh-aurora i,
+.jh[data-live="false"] .jh-floor__grid,
+.jh[data-live="false"] .jh-traces .pulse,
+.jh[data-live="false"] .jh-rotor span,
+.jh[data-live="false"] .jh-frame::before,
+.jh[data-live="false"] .jh-cta::before,
+.jh[data-live="false"] .jh-dot::after { animation-play-state: paused; }
+
+/* =========================================================================
+   LAYOUT
+   ========================================================================= */
+.jh-wrap {
+  position: relative;
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+  gap: 3.5rem;
+  width: 100%;
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: clamp(7.5rem, 14vw, 10.5rem) 1rem 3rem;
+}
+@media (min-width: 640px) {
+  .jh-wrap { padding-left: 1.5rem; padding-right: 1.5rem; }
+}
+@media (min-width: 1024px) {
+  .jh-wrap {
+    grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr);
+    gap: 4rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+/* entrada em cascata */
+.jh-in {
+  opacity: 0;
+  animation: jh-rise 0.9s var(--jh-ease) forwards;
+  animation-delay: calc(0.1s + var(--d, 0) * 0.09s);
+}
+
+/* =========================================================================
+   COPY
+   ========================================================================= */
+.jh-copy {
+  transform: translate3d(0, calc(var(--p) * -36px), 0);
+  opacity: calc(1 - var(--p) * 0.75);
+}
+
+/* etiqueta com palavra rotativa */
+.jh-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.4rem 1rem 0.4rem 0.45rem;
+  margin-bottom: 1.75rem;
+  border-radius: 999px;
+  border: 1px solid var(--jh-line);
+  background: oklch(0.16 0.04 258 / 0.6);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--jh-muted);
+}
+.jh-tag__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--jh-gold), oklch(0.78 0.17 80));
+  color: oklch(0.15 0.03 255);
+  font-weight: 800;
+}
+.jh-tag__badge svg { width: 0.8rem; height: 0.8rem; }
+.jh-rotor {
+  display: block;
+  height: 1.5rem;
+  line-height: 1.5rem;
+  overflow: hidden;
+  color: var(--jh-text);
+}
+.jh-rotor span {
+  display: block;
+  animation: jh-rotor 9s var(--jh-ease) infinite;
+}
+.jh-rotor b { display: block; font-weight: 700; }
+
+/* headline com máscara */
+.jh-title {
+  margin: 0 0 1.5rem;
+  font-family: var(--font-serif, serif);
+  font-weight: 800;
+  font-size: clamp(2.8rem, 8.4vw, 6.3rem);
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+}
+.jh-line {
+  display: block;
+  overflow: hidden;
+  padding: 0.04em 0.1em 0.2em 0;
+}
+.jh-word {
+  position: relative;
+  display: inline-block;
+  transform: translate3d(0, 118%, 0);
+  animation: jh-word 1.05s var(--jh-ease) forwards;
+  animation-delay: calc(0.25s + var(--d, 0) * 0.16s);
+}
+.jh-word--grad {
+  background: linear-gradient(100deg, var(--jh-blue) 0%, var(--jh-cyan) 45%, var(--jh-gold) 100%);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation:
+    jh-word 1.05s var(--jh-ease) forwards,
+    jh-grad 7s ease-in-out 1.3s infinite alternate;
+  animation-delay: calc(0.25s + var(--d, 0) * 0.16s), 1.3s;
+}
+.jh-squig {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.02em;
+  width: 100%;
+  height: 0.16em;
+  overflow: visible;
+}
+.jh-squig path {
+  fill: none;
+  stroke: var(--jh-gold);
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  filter: drop-shadow(0 0 6px oklch(0.88 0.18 95 / 0.7));
+  animation: jh-draw 0.9s var(--jh-ease) 1.35s forwards;
+}
+
+.jh-lead {
+  max-width: 34rem;
+  margin: 0 0 2.25rem;
+  font-size: clamp(1.02rem, 1.7vw, 1.22rem);
+  line-height: 1.7;
+  color: var(--jh-muted);
+}
+.jh-lead strong { color: var(--jh-text); font-weight: 600; }
+
+/* =========================================================================
+   BOTÕES
+   ========================================================================= */
+.jh-ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  margin-bottom: 2.25rem;
+}
+.jh-cta {
+  --tx: 0px;
+  --ty: 0px;
+  --sx: 50%;
+  --sy: 50%;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  padding: 1.05rem 1.7rem;
+  border-radius: 999px;
+  overflow: hidden;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  text-decoration: none;
+  background: linear-gradient(135deg, var(--jh-blue), var(--jh-indigo));
+  box-shadow:
+    inset 0 0 0 1px oklch(1 0 0 / 0.22),
+    0 16px 40px -10px oklch(0.62 0.22 258 / 0.85);
+  transform: translate3d(var(--tx), var(--ty), 0);
+  transition: transform 0.25s var(--jh-ease), box-shadow 0.3s;
+}
+.jh-cta:hover {
+  box-shadow:
+    inset 0 0 0 1px oklch(1 0 0 / 0.32),
+    0 20px 50px -8px oklch(0.62 0.22 258 / 1);
+}
+.jh-cta:active { transform: translate3d(var(--tx), var(--ty), 0) scale(0.96); }
+.jh-cta::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 30%, oklch(1 0 0 / 0.38) 50%, transparent 70%);
+  transform: translateX(-120%);
+  animation: jh-sweep 3.4s ease-in-out infinite;
+  pointer-events: none;
+}
+.jh-cta::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(110px circle at var(--sx) var(--sy), oklch(1 0 0 / 0.3), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.25s;
+  pointer-events: none;
+}
+.jh-cta:hover::after { opacity: 1; }
+.jh-cta > * { position: relative; z-index: 1; }
+.jh-cta svg { width: 1.15rem; height: 1.15rem; transition: transform 0.3s var(--jh-spring); }
+.jh-cta:hover svg:last-child { transform: translateX(5px); }
+
+.jh-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 1.05rem 1.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--jh-line);
+  background: oklch(0.16 0.04 258 / 0.5);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--jh-text);
+  text-decoration: none;
+  transition: transform 0.3s var(--jh-spring), border-color 0.25s, background 0.25s;
+}
+.jh-ghost:hover {
+  transform: translateY(-3px);
+  border-color: oklch(0.88 0.18 95 / 0.6);
+  background: oklch(0.2 0.05 258 / 0.7);
+}
+.jh-ghost svg { width: 1.1rem; height: 1.1rem; color: var(--jh-gold); }
+.jh-ghost:hover svg { animation: jh-nudge 0.9s ease-in-out infinite; }
+.jh-cta:focus-visible,
+.jh-ghost:focus-visible {
+  outline: 2px solid var(--jh-cyan);
+  outline-offset: 3px;
+}
+
+/* =========================================================================
+   PÍLULAS DE CONFIANÇA
+   ========================================================================= */
+.jh-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+.jh-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 1rem 0.4rem 0.4rem;
+  border-radius: 999px;
+  border: 1px solid var(--jh-line);
+  background: oklch(0.16 0.04 258 / 0.45);
+  font-size: 0.82rem;
+  color: var(--jh-muted);
+  transition: transform 0.3s var(--jh-spring), border-color 0.25s, color 0.25s;
+}
+.jh-pill:hover {
+  transform: translateY(-3px);
+  border-color: oklch(0.84 0.14 200 / 0.55);
+  color: var(--jh-text);
+}
+.jh-pill i {
+  display: grid;
+  place-items: center;
+  width: 1.85rem;
+  height: 1.85rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, oklch(0.62 0.22 258 / 0.5), oklch(0.84 0.14 200 / 0.3));
+  box-shadow: inset 0 0 0 1px oklch(1 0 0 / 0.14);
+}
+.jh-pill svg { width: 0.95rem; height: 0.95rem; color: #fff; }
+
+/* =========================================================================
+   VISUAL: foto com tilt 3D
+   ========================================================================= */
+.jh-stage {
+  position: relative;
+  width: min(100%, 25rem);
+  aspect-ratio: 4 / 5;
+  margin: 0 auto;
+  perspective: 1200px;
+  transform: translate3d(0, calc(var(--p) * -22px), 0);
+}
+@media (min-width: 1024px) {
+  .jh-stage { width: min(100%, 27.5rem); margin: 0 0 0 auto; }
+}
+
+.jh-tilt {
+  --rx: 0deg;
+  --ry: 0deg;
+  position: absolute;
+  inset: 0;
+  transform: rotateX(var(--rx)) rotateY(var(--ry));
+  transition: transform 0.35s var(--jh-ease);
+}
+
+/* moldura com borda de gradiente girando */
+.jh-frame {
+  position: absolute;
+  inset: 0;
+  isolation: isolate;
+  overflow: hidden;
+  padding: 2px;
+  border-radius: 2rem;
+  box-shadow: 0 40px 90px -30px oklch(0.62 0.22 258 / 0.7), 0 0 0 1px oklch(1 0 0 / 0.04);
+}
+.jh-frame::before {
+  content: "";
+  position: absolute;
+  inset: -50%;
+  z-index: -1;
+  background: conic-gradient(from 0deg, var(--jh-blue), var(--jh-cyan), var(--jh-gold), var(--jh-indigo), var(--jh-blue));
+  animation: jh-spin 7s linear infinite;
+}
+.jh-photo {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: calc(2rem - 2px);
+  background: var(--jh-ink);
+}
+.jh-photo img { object-fit: cover; }
+.jh-photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to top, oklch(0.07 0.03 255 / 0.92) 0%, oklch(0.07 0.03 255 / 0.1) 45%, transparent 70%),
+    linear-gradient(135deg, oklch(0.5 0.22 275 / 0.18), transparent 45%);
+  pointer-events: none;
+}
+
+/* cantos de mira */
+.jh-corner {
+  position: absolute;
+  z-index: 3;
+  width: 1.6rem;
+  height: 1.6rem;
+  border: 2px solid var(--jh-cyan);
+  filter: drop-shadow(0 0 5px var(--jh-cyan));
+  pointer-events: none;
+}
+.jh-corner--tl { top: 1rem; left: 1rem; border-right: 0; border-bottom: 0; border-top-left-radius: 0.7rem; }
+.jh-corner--tr { top: 1rem; right: 1rem; border-left: 0; border-bottom: 0; border-top-right-radius: 0.7rem; }
+.jh-corner--bl { bottom: 1rem; left: 1rem; border-right: 0; border-top: 0; border-bottom-left-radius: 0.7rem; }
+.jh-corner--br { bottom: 1rem; right: 1rem; border-left: 0; border-top: 0; border-bottom-right-radius: 0.7rem; }
+
+.jh-hud {
+  position: absolute;
+  z-index: 3;
+  top: 1.6rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid oklch(0.84 0.14 200 / 0.4);
+  background: oklch(0.1 0.03 255 / 0.65);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  font-family: ui-monospace, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--jh-cyan);
+  white-space: nowrap;
+}
+.jh-dot {
+  position: relative;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: var(--jh-green);
+}
+.jh-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--jh-green);
+  animation: jh-ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* números sobre a foto */
+.jh-stats {
+  position: absolute;
+  z-index: 3;
+  left: 1.6rem;
+  right: 1.6rem;
+  bottom: 5.6rem;
+  display: flex;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.jh-stats li {
+  flex: 1;
+  min-width: 0;
+  padding: 0.7rem 0.85rem;
+  border-radius: 1rem;
+  border: 1px solid var(--jh-line);
+  background: oklch(0.1 0.03 255 / 0.65);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+.jh-stats b {
+  display: block;
+  font-family: var(--font-serif, serif);
+  font-size: clamp(1.3rem, 3vw, 1.7rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--jh-gold);
+}
+.jh-stats span {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 0.72rem;
+  line-height: 1.25;
+  color: var(--jh-muted);
+}
+
+.jh-caption {
+  position: absolute;
+  z-index: 3;
+  left: 1.6rem;
+  right: 1.6rem;
+  bottom: 1.7rem;
+}
+.jh-caption small {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-size: 0.66rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--jh-gold);
+}
+.jh-caption p { margin: 0; font-size: 1rem; font-weight: 600; line-height: 1.3; }
+
+/* reflexo que segue o mouse */
+.jh-glare {
+  --gx: 50%;
+  --gy: 0%;
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  background: radial-gradient(circle at var(--gx) var(--gy), oklch(1 0 0 / 0.2), transparent 55%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+.jh-stage:hover .jh-glare { opacity: 1; }
+
+/* =========================================================================
+   KEYFRAMES
+   ========================================================================= */
+@keyframes jh-rise { from { opacity: 0; transform: translate3d(0, 28px, 0); } to { opacity: 1; transform: none; } }
+@keyframes jh-word { to { transform: translate3d(0, 0, 0); } }
+@keyframes jh-grad { to { background-position: 100% 0; } }
+@keyframes jh-draw { to { stroke-dashoffset: 0; } }
+@keyframes jh-spin { to { transform: rotate(360deg); } }
+@keyframes jh-drift-a { to { transform: translate3d(8vmax, 6vmax, 0) scale(1.1); } }
+@keyframes jh-drift-b { to { transform: translate3d(-9vmax, -4vmax, 0) scale(1.15); } }
+@keyframes jh-floor {
+  from { transform: rotateX(64deg) translateY(0); }
+  to { transform: rotateX(64deg) translateY(64px); }
+}
+@keyframes jh-pulse { to { stroke-dashoffset: -100; } }
+@keyframes jh-sweep { 0% { transform: translateX(-120%); } 55%, 100% { transform: translateX(120%); } }
+@keyframes jh-ping { 75%, 100% { transform: scale(2.6); opacity: 0; } }
+@keyframes jh-nudge { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
+/* rotor: 3 palavras + a primeira repetida para o loop ficar contínuo */
+@keyframes jh-rotor {
+  0%, 27% { transform: translateY(0); }
+  33%, 60% { transform: translateY(-1.5rem); }
+  66%, 93% { transform: translateY(-3rem); }
+  100% { transform: translateY(-4.5rem); }
+}
+
+/* =========================================================================
+   Acessibilidade: menos movimento
+   ========================================================================= */
+@media (prefers-reduced-motion: reduce) {
+  .jh *,
+  .jh *::before,
+  .jh *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    will-change: auto !important;
+  }
+  .jh-in { opacity: 1; }
+  .jh-word { transform: none; }
+  .jh-squig path { stroke-dashoffset: 0; }
+}

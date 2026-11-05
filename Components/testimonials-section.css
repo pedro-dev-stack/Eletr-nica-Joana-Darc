@@ -1,0 +1,553 @@
+/* =========================================================================
+   TESTIMONIALS · Eletrônica Joana Dark
+   Smart TV no centro. Cada depoimento é um canal.
+   - Visual 100% chapado: sem gradiente, sem grade, sem scanner.
+   - Botões físicos no queixo da TV: canal -/+ e ligar/desligar.
+   - Ligar: tela abre como TV de verdade + splash de inicialização.
+   - Desligar: tela colapsa em linha e some em ponto.
+   - Leve: só transform/opacity, pausa fora da tela, sem blur.
+   Prefixo .tm- (sem conflito).
+   ========================================================================= */
+
+.tm {
+  --tm-bg: oklch(0.1 0.028 258);
+  --tm-body: oklch(0.2 0.012 258);
+  --tm-body-line: oklch(0.32 0.015 258);
+  --tm-foot: oklch(0.17 0.01 258);
+  --tm-screen: oklch(0.125 0.04 258);
+  --tm-card: oklch(0.17 0.04 258);
+  --tm-card-2: oklch(0.22 0.06 258);
+  --tm-recess: oklch(0.12 0.01 258);
+  --tm-key: oklch(0.26 0.014 258);
+  --tm-key-line: oklch(0.38 0.016 258);
+  --tm-accent: oklch(0.82 0.13 215);
+  --tm-gold: oklch(0.86 0.17 92);
+  --tm-green: oklch(0.82 0.2 150);
+  --tm-red: oklch(0.68 0.22 25);
+  --tm-line: oklch(1 0 0 / 0.1);
+  --tm-text: oklch(0.98 0 0);
+  --tm-muted: oklch(0.72 0.02 255);
+  --tm-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --tm-spring: cubic-bezier(0.3, 1.45, 0.5, 1);
+  --tm-r: clamp(0.6rem, 1.4vw, 1rem);
+  --tm-bz: clamp(0.4rem, 1vw, 0.75rem);
+
+  position: relative;
+  overflow: hidden;
+  padding: clamp(4.5rem, 9vw, 8rem) 1rem clamp(4rem, 8vw, 7rem);
+  background: var(--tm-bg);
+  border-block: 1px solid var(--tm-line);
+  color: var(--tm-text);
+}
+@media (min-width: 640px) { .tm { padding-left: 1.5rem; padding-right: 1.5rem; } }
+@media (min-width: 1024px) { .tm { padding-left: 2rem; padding-right: 2rem; } }
+
+.tm-wrap { position: relative; max-width: 80rem; margin: 0 auto; }
+
+/* texto só para leitores de tela (a TV desligada não tem texto visível) */
+.tm-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+  list-style: none;
+}
+
+/* ---------- Reveal ---------- */
+.tm-rv { opacity: 0; transform: translateY(24px); }
+.tm[data-seen="true"] .tm-rv {
+  animation: tm-rise 0.9s var(--tm-ease) forwards;
+  animation-delay: calc(var(--d, 0) * 0.1s);
+}
+
+/* =========================================================================
+   CABEÇALHO
+   ========================================================================= */
+.tm-head { max-width: 46rem; margin: 0 auto clamp(2rem, 5vw, 3.2rem); text-align: center; }
+.tm-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin: 0 0 1.2rem;
+  font-size: clamp(0.62rem, 1.8vw, 0.72rem);
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--tm-gold);
+}
+.tm-eyebrow::before,
+.tm-eyebrow::after {
+  content: "";
+  width: clamp(1.2rem, 5vw, 2.2rem);
+  height: 1px;
+  background: var(--tm-gold);
+}
+.tm-title {
+  margin: 0 0 1.4rem;
+  font-family: var(--font-serif, serif);
+  font-size: clamp(1.95rem, 6vw, 3.6rem);
+  font-weight: 800;
+  line-height: 1.06;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+.tm-title em { font-style: italic; color: var(--tm-accent); }
+.tm-meta { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.6rem; }
+.tm-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.95rem;
+  border-radius: 999px;
+  border: 1px solid var(--tm-line);
+  background: var(--tm-card);
+  font-family: ui-monospace, monospace;
+  font-size: clamp(0.6rem, 1.9vw, 0.7rem);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tm-muted);
+}
+.tm-pill b { color: var(--tm-gold); font-weight: 600; }
+.tm-pill svg { width: 0.85rem; height: 0.85rem; fill: var(--tm-gold); }
+
+/* =========================================================================
+   A TV
+   ========================================================================= */
+.tm-tv { width: min(100%, 62rem); margin: 0 auto; }
+
+.tm-body {
+  position: relative;
+  padding: var(--tm-bz) var(--tm-bz) 0;
+  border-radius: var(--tm-r);
+  background: var(--tm-body);
+  border: 1px solid var(--tm-body-line);
+  box-shadow: 0 0 0 1px oklch(0 0 0), 0 30px 60px -40px oklch(0 0 0 / 0.9);
+  transition: box-shadow 0.8s var(--tm-ease);
+}
+.tm-tv[data-phase="on"] .tm-body,
+.tm-tv[data-phase="boot"] .tm-body {
+  box-shadow: 0 0 0 1px oklch(0 0 0), 0 40px 80px -40px oklch(0.62 0.22 258 / 0.55);
+}
+
+/* vidro da tela */
+.tm-screen {
+  position: relative;
+  min-height: 22rem;
+  overflow: hidden;
+  border-radius: calc(var(--tm-r) - 0.2rem);
+  background: oklch(0.04 0.005 258);
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+@media (min-width: 700px) {
+  .tm-screen { aspect-ratio: 16 / 9; min-height: 21rem; }
+}
+/* reflexo do vidro: forma chapada (sem gradiente) */
+.tm-glare {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  background: oklch(1 0 0 / 0.035);
+  clip-path: polygon(0 0, 52% 0, 24% 100%, 0 100%);
+  pointer-events: none;
+}
+
+/* área acesa */
+.tm-panel {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--tm-screen);
+  opacity: 0;
+  transform-origin: center;
+}
+.tm-tv[data-phase="boot"] .tm-panel,
+.tm-tv[data-phase="on"] .tm-panel,
+.tm-tv[data-phase="down"] .tm-panel { opacity: 1; }
+.tm-tv[data-phase="boot"] .tm-panel { animation: tm-poweron 0.8s var(--tm-ease) both; }
+.tm-tv[data-phase="down"] .tm-panel { animation: tm-poweroff 0.6s var(--tm-ease) forwards; }
+
+/* dica com a TV desligada */
+.tm-hint {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 0.7rem;
+  font-family: ui-monospace, monospace;
+  font-size: clamp(0.56rem, 1.7vw, 0.68rem);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: oklch(1 0 0 / 0.38);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s;
+}
+.tm-hint svg { width: 1.6rem; height: 1.6rem; }
+.tm-tv[data-phase="off"] .tm-hint { opacity: 1; transition-delay: 0.7s; }
+
+/* ---------- Splash de inicialização ---------- */
+.tm-boot {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 1rem;
+  text-align: center;
+  opacity: 0;
+  animation: tm-fade 0.5s ease-out 0.45s forwards;
+}
+.tm-boot b {
+  font-family: var(--font-serif, serif);
+  font-size: clamp(1.4rem, 4.6vw, 2.6rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.tm-boot small {
+  font-family: ui-monospace, monospace;
+  font-size: clamp(0.55rem, 1.6vw, 0.66rem);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--tm-gold);
+}
+.tm-boot__dots { display: flex; gap: 0.45rem; }
+.tm-boot__dots i {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--tm-accent);
+  animation: tm-bounce 0.9s ease-in-out infinite;
+}
+.tm-boot__dots i:nth-child(2) { animation-delay: 0.15s; }
+.tm-boot__dots i:nth-child(3) { animation-delay: 0.3s; }
+
+/* ---------- UI da Smart TV ---------- */
+.tm-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  padding: clamp(0.7rem, 2vw, 1.1rem) clamp(0.9rem, 2.8vw, 1.9rem) 0;
+  font-family: ui-monospace, monospace;
+  font-size: clamp(0.5rem, 1.5vw, 0.64rem);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--tm-muted);
+}
+.tm-top span { display: inline-flex; align-items: center; gap: 0.5rem; }
+.tm-top b { color: var(--tm-gold); font-weight: 600; }
+.tm-dot { width: 0.42rem; height: 0.42rem; border-radius: 50%; background: var(--tm-accent); }
+
+.tm-content {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 clamp(0.9rem, 3.4vw, 2.8rem);
+  animation: tm-in-next 0.6s var(--tm-ease) both;
+}
+.tm-content[data-dir="prev"] { animation-name: tm-in-prev; }
+.tm-glyph {
+  position: absolute;
+  top: -0.6rem;
+  left: clamp(0.5rem, 2.6vw, 2.2rem);
+  font-family: var(--font-serif, serif);
+  font-size: clamp(4.5rem, 12vw, 8rem);
+  font-style: italic;
+  line-height: 1;
+  color: oklch(0.82 0.13 215 / 0.18);
+  pointer-events: none;
+}
+.tm-stars { position: relative; display: flex; gap: 0.2rem; margin-bottom: clamp(0.6rem, 1.8vw, 1rem); }
+.tm-star {
+  width: clamp(0.9rem, 2.3vw, 1.15rem);
+  height: clamp(0.9rem, 2.3vw, 1.15rem);
+  fill: var(--tm-gold);
+  transform: scale(0);
+  animation: tm-pop 0.45s var(--tm-spring) forwards;
+  animation-delay: calc(0.25s + var(--k) * 0.07s);
+}
+.tm-quote {
+  position: relative;
+  max-width: 42rem;
+  margin: 0 0 clamp(0.9rem, 2.6vw, 1.5rem);
+  font-family: var(--font-serif, serif);
+  font-size: clamp(1rem, 2.35vw, 1.6rem);
+  font-style: italic;
+  font-weight: 500;
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+.tm-author { position: relative; display: flex; align-items: center; gap: 0.8rem; }
+.tm-avatar {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: clamp(2.3rem, 5vw, 3rem);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 2px solid var(--tm-accent);
+  background: var(--tm-card);
+  font-family: var(--font-serif, serif);
+  font-size: clamp(0.72rem, 1.8vw, 0.9rem);
+  font-weight: 700;
+}
+.tm-name { margin: 0; font-size: clamp(0.9rem, 2.2vw, 1.05rem); font-weight: 700; }
+.tm-device {
+  margin: 0.15rem 0 0;
+  font-family: ui-monospace, monospace;
+  font-size: clamp(0.56rem, 1.6vw, 0.68rem);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tm-accent);
+}
+
+/* ---------- Trilho de canais (dentro da tela) ---------- */
+.tm-rail {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(0.35rem, 1vw, 0.6rem);
+  padding: 0 clamp(0.7rem, 2.4vw, 1.5rem) clamp(0.7rem, 2vw, 1.2rem);
+}
+
+/* progresso do canal (o fim da barra avança o canal) */
+.tm-prog {
+  position: absolute;
+  left: 0.6rem;
+  right: 0.6rem;
+  bottom: 0;
+  height: 2px;
+  background: oklch(1 0 0 / 0.08);
+  opacity: 0;
+}
+
+/* ---------- OSD (número do canal) e piscada de troca ---------- */
+.tm-osd {
+  position: absolute;
+  z-index: 4;
+  top: clamp(2rem, 5.2vw, 3.2rem);
+  right: clamp(0.9rem, 2.8vw, 1.9rem);
+  text-align: right;
+  font-family: ui-monospace, monospace;
+  opacity: 0;
+  pointer-events: none;
+  animation: tm-osd 3s ease-out forwards;
+}
+.tm-osd b {
+  display: block;
+  font-size: clamp(1.8rem, 5.2vw, 3.2rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  color: var(--tm-green);
+  text-shadow: 2px 2px 0 oklch(0 0 0);
+}
+.tm-osd small {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: clamp(0.55rem, 1.6vw, 0.7rem);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--tm-text);
+  text-shadow: 1px 1px 0 oklch(0 0 0);
+}
+.tm-blink {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  background: oklch(0.04 0.005 258);
+  opacity: 0;
+  pointer-events: none;
+  animation: tm-blink 0.3s ease-out;
+}
+
+/* =========================================================================
+   QUEIXO DA TV: logo, LED e botões físicos
+   ========================================================================= */
+.tm-chin {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  padding: clamp(0.6rem, 1.5vw, 0.9rem) clamp(0.4rem, 1.4vw, 0.9rem) clamp(0.65rem, 1.6vw, 1rem);
+}
+.tm-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-width: 0;
+  font-size: clamp(0.55rem, 1.6vw, 0.68rem);
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--tm-muted);
+}
+.tm-brand span:last-child { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.tm-led {
+  flex: none;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: var(--tm-red);
+  animation: tm-standby 2.4s ease-in-out infinite;
+}
+.tm-tv[data-phase="on"] .tm-led,
+.tm-tv[data-phase="boot"] .tm-led { background: var(--tm-green); box-shadow: 0 0 8px var(--tm-green); animation: none; }
+.tm[data-live="false"] .tm-led { animation-play-state: paused; }
+@media (max-width: 419px) { .tm-brand span:last-child { display: none; } }
+
+.tm-keys { display: flex; align-items: center; gap: clamp(0.45rem, 1.4vw, 0.8rem); }
+/* "encaixe" dos botões: baixo-relevo no corpo da TV */
+.tm-dock {
+  display: flex;
+  align-items: center;
+  padding: 0.22rem;
+  border-radius: 999px;
+  background: var(--tm-recess);
+  box-shadow: inset 0 2px 5px oklch(0 0 0 / 0.75), 0 1px 0 oklch(1 0 0 / 0.06);
+}
+.tm-chlbl {
+  min-width: clamp(3rem, 8vw, 3.8rem);
+  text-align: center;
+  font-family: ui-monospace, monospace;
+  font-size: clamp(0.58rem, 1.6vw, 0.68rem);
+  letter-spacing: 0.16em;
+  color: var(--tm-muted);
+}
+.tm-chlbl b { color: var(--tm-text); font-weight: 600; }
+.tm-tv:not([data-phase="on"]) .tm-chlbl b { color: var(--tm-muted); }
+
+.tm-key {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: clamp(2.6rem, 6.4vw, 2.95rem);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 1px solid var(--tm-key-line);
+  background: var(--tm-key);
+  color: var(--tm-text);
+  cursor: pointer;
+  box-shadow: 0 2px 0 oklch(0 0 0 / 0.8), inset 0 1px 0 oklch(1 0 0 / 0.1);
+  transition: transform 0.12s, box-shadow 0.12s, border-color 0.2s, color 0.2s, background 0.2s;
+}
+.tm-key svg { width: 1.2rem; height: 1.2rem; }
+@media (hover: hover) {
+  .tm-key:hover:not(:disabled) { border-color: var(--tm-accent); color: var(--tm-accent); }
+}
+.tm-key:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 0 0 oklch(0 0 0 / 0.8), inset 0 1px 0 oklch(1 0 0 / 0.05);
+  background: oklch(0.22 0.014 258);
+}
+.tm-key:disabled { opacity: 0.4; cursor: not-allowed; }
+.tm-key:focus-visible { outline: 2px solid var(--tm-accent); outline-offset: 2px; }
+
+.tm-power { color: var(--tm-red); }
+.tm-tv[data-phase="on"] .tm-power,
+.tm-tv[data-phase="boot"] .tm-power {
+  color: var(--tm-green);
+  border-color: var(--tm-green);
+  box-shadow: 0 2px 0 oklch(0 0 0 / 0.8), 0 0 14px oklch(0.82 0.2 150 / 0.55), inset 0 1px 0 oklch(1 0 0 / 0.1);
+}
+/* anel que chama atenção quando a TV está desligada */
+.tm-tv[data-phase="off"] .tm-power::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  border: 2px solid var(--tm-red);
+  animation: tm-ring 1.9s ease-out infinite;
+  pointer-events: none;
+}
+.tm[data-live="false"] .tm-power::before { animation-play-state: paused; }
+.tm-ripple {
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  animation: tm-rip 0.6s ease-out forwards;
+  pointer-events: none;
+}
+
+/* =========================================================================
+   PÉS E DICA
+   ========================================================================= */
+.tm-feet { display: flex; justify-content: space-between; padding: 0 14%; }
+.tm-feet i {
+  width: clamp(3rem, 13vw, 8rem);
+  height: clamp(0.7rem, 2vw, 1.1rem);
+  background: var(--tm-foot);
+  clip-path: polygon(8% 0, 92% 0, 100% 100%, 0 100%);
+}
+.tm-help {
+  margin: 1.6rem 0 0;
+  text-align: center;
+  font-family: ui-monospace, monospace;
+  font-size: clamp(0.58rem, 1.7vw, 0.7rem);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--tm-muted);
+}
+
+/* =========================================================================
+   KEYFRAMES
+   ========================================================================= */
+@keyframes tm-rise { to { opacity: 1; transform: none; } }
+@keyframes tm-in-next { from { opacity: 0; transform: translateX(28px); } to { opacity: 1; transform: none; } }
+@keyframes tm-in-prev { from { opacity: 0; transform: translateX(-28px); } to { opacity: 1; transform: none; } }
+@keyframes tm-pop { to { transform: scale(1); } }
+@keyframes tm-fade { to { opacity: 1; } }
+@keyframes tm-bounce { 0%, 100% { transform: translateY(0); opacity: 0.5; } 50% { transform: translateY(-6px); opacity: 1; } }
+@keyframes tm-prog { to { transform: scaleX(1); } }
+@keyframes tm-osd {
+  0% { opacity: 0; transform: translateY(-6px); }
+  8% { opacity: 1; transform: none; }
+  80% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes tm-blink { 0% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes tm-standby { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+@keyframes tm-ring { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(1.55); opacity: 0; } }
+@keyframes tm-rip { 0% { transform: scale(1); opacity: 0.9; } 100% { transform: scale(1.7); opacity: 0; } }
+
+/* ligar: ponto -> linha -> tela cheia (flash branco, como TV de verdade) */
+@keyframes tm-poweron {
+  0% { opacity: 1; transform: scale(0.01, 0.006); background: oklch(1 0 0); }
+  25% { transform: scale(1, 0.006); background: oklch(1 0 0); }
+  55% { transform: scale(1, 1); background: oklch(1 0 0); }
+  100% { transform: none; background: var(--tm-screen); }
+}
+/* desligar: tela -> linha -> ponto -> some */
+@keyframes tm-poweroff {
+  0% { opacity: 1; transform: none; background: var(--tm-screen); }
+  40% { opacity: 1; transform: scale(1, 0.006); background: oklch(1 0 0); }
+  75% { opacity: 1; transform: scale(0.01, 0.006); background: oklch(1 0 0); }
+  100% { opacity: 0; transform: scale(0, 0); background: oklch(1 0 0); }
+}
+
+/* =========================================================================
+   Acessibilidade: menos movimento
+   ========================================================================= */
+@media (prefers-reduced-motion: reduce) {
+  .tm *,
+  .tm *::before,
+  .tm *::after { animation: none !important; transition-duration: 0.01ms !important; transition-delay: 0s !important; }
+  .tm-rv, .tm-boot { opacity: 1; transform: none; }
+  .tm-star { transform: none; }
+  .tm-prog i { transform: scaleX(1); }
+  .tm-osd, .tm-blink { display: none; }
+}

@@ -1,0 +1,304 @@
+/* =========================================================================
+   BRANDS v4 · Eletrônica Joana Dark
+   - Sem grid de fundo, sem scanner, sem gradientes (cores sólidas).
+   - Marquee em CSS puro: só transform/opacity, GPU-composited.
+   - will-change apenas enquanto a seção está na tela.
+   - Responsivo fluido (clamp + aspect-ratio), toque e mouse.
+   Prefixo .br- (sem conflito).
+   ========================================================================= */
+
+.br {
+  --br-blue: oklch(0.62 0.22 258);
+  --br-gold: oklch(0.88 0.18 95);
+  --br-green: oklch(0.8 0.2 155);
+  --br-ink: oklch(0.12 0.02 256);
+  --br-surface: oklch(0.17 0.025 258);
+  --br-line: oklch(1 0 0 / 0.1);
+  --br-line-strong: oklch(1 0 0 / 0.22);
+  --br-text: oklch(0.98 0 0);
+  --br-muted: oklch(0.72 0.02 255);
+  --br-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --br-w: clamp(7.25rem, 24vw, 13rem);
+  --br-gap: clamp(0.85rem, 2.6vw, 2.5rem);
+  --br-radius: clamp(0.7rem, 1.6vw, 1rem);
+
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: clamp(4rem, 9vw, 8.5rem) 0;
+  background: var(--br-ink);
+  color: var(--br-text);
+  border-block: 1px solid var(--br-line);
+}
+
+/* =========================================================================
+   CABEÇALHO
+   ========================================================================= */
+.br-head {
+  position: relative;
+  z-index: 2;
+  max-width: 56rem;
+  margin: 0 auto clamp(2rem, 4vw, 3rem);
+  padding: 0 1rem;
+  text-align: center;
+}
+
+.br-rv { opacity: 0; transform: translate3d(0, 24px, 0); }
+.br[data-seen="true"] .br-rv {
+  animation: br-rise 0.9s var(--br-ease) forwards;
+  animation-delay: calc(var(--d, 0) * 0.1s);
+}
+
+.br-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 1.3rem;
+  padding: 0.4rem 1rem 0.4rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid var(--br-line);
+  background: var(--br-surface);
+  font-size: clamp(0.62rem, 1.8vw, 0.72rem);
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--br-gold);
+}
+.br-dot {
+  position: relative;
+  flex: none;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: var(--br-green);
+}
+.br-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: inherit;
+  animation: br-ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+.br[data-live="false"] .br-dot::after { animation-play-state: paused; }
+
+.br-title {
+  margin: 0 0 1.2rem;
+  font-family: var(--font-serif, serif);
+  font-size: clamp(1.95rem, 6.2vw, 4rem);
+  font-weight: 800;
+  line-height: 1.06;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+.br-title__mark {
+  position: relative;
+  display: inline-block;
+  color: var(--br-gold);
+}
+.br-squig {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.18em;
+  width: 100%;
+  height: 0.2em;
+  overflow: visible;
+}
+.br-squig path {
+  fill: none;
+  stroke: var(--br-gold);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+.br[data-seen="true"] .br-squig path {
+  animation: br-draw 1s var(--br-ease) 0.9s forwards;
+}
+
+.br-lead {
+  max-width: 40rem;
+  margin: 0 auto 1.6rem;
+  font-size: clamp(0.95rem, 2.4vw, 1.15rem);
+  line-height: 1.7;
+  color: var(--br-muted);
+}
+
+/* chips de tecnologia */
+.br-techs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.7rem 1.5rem;
+}
+.br-tech {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+.br-tech b {
+  margin-right: 0.3rem;
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--br-gold);
+}
+.br-tech span {
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid var(--br-line);
+  background: var(--br-surface);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: oklch(0.98 0 0 / 0.85);
+  transition: border-color 0.25s, color 0.25s;
+}
+@media (hover: hover) {
+  .br-tech span:hover {
+    border-color: var(--br-blue);
+    color: var(--br-text);
+  }
+}
+
+/* =========================================================================
+   LINHAS DO CARROSSEL (marquee CSS puro)
+   ========================================================================= */
+.br-rows {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  gap: clamp(1rem, 2.4vw, 2rem);
+}
+
+.br-row { opacity: 0; transform: translate3d(0, 20px, 0); }
+.br[data-seen="true"] .br-row {
+  animation: br-rise 0.9s var(--br-ease) forwards;
+  animation-delay: calc(0.35s + var(--r) * 0.15s);
+}
+
+/* folga para o card subir no hover sem ser cortado */
+.br-viewport {
+  overflow: hidden;
+  padding: 1.1rem 0;
+  margin: -1.1rem 0;
+}
+.br-track {
+  display: flex;
+  width: max-content;
+  animation: br-marquee var(--dur, 50s) linear infinite;
+  animation-direction: var(--dir, normal);
+}
+/* compositing só enquanto visível; libera a camada quando sai da tela */
+.br[data-live="true"] .br-track { will-change: transform; }
+
+.br-group {
+  display: flex;
+  flex: none;
+  gap: var(--br-gap);
+  padding: 0 var(--br-gap) 0 0;
+  margin: 0;
+  list-style: none;
+}
+.br-group > li { display: contents; }
+
+/* pausas: fora da tela, hover (mouse) e toque-e-segura (celular) */
+.br[data-live="false"] .br-track { animation-play-state: paused; }
+@media (hover: hover) {
+  .br-row:hover .br-track { animation-play-state: paused; }
+}
+@media (hover: none) {
+  .br-row:active .br-track { animation-play-state: paused; }
+}
+
+/* =========================================================================
+   CARD (flat, sem blur, sem glow)
+   ========================================================================= */
+.br-card {
+  flex: none;
+  width: var(--br-w);
+  aspect-ratio: 13 / 8;
+  transition: transform 0.4s var(--br-ease);
+}
+.br-face {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 8% 9% 15%;
+  overflow: hidden;
+  border-radius: var(--br-radius);
+  border: 1px solid var(--br-line);
+  background: var(--br-surface);
+  transition: border-color 0.3s;
+}
+.br-face img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0.88;
+  transition: opacity 0.3s, transform 0.4s var(--br-ease);
+  -webkit-user-drag: none;
+  user-select: none;
+}
+.br-name {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0.4rem;
+  text-align: center;
+  font-size: clamp(0.5rem, 1.3vw, 0.62rem);
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--br-gold);
+  opacity: 0;
+  transform: translate3d(0, 6px, 0);
+  transition: opacity 0.3s, transform 0.4s var(--br-ease);
+}
+
+@media (hover: hover) {
+  .br-card:hover { transform: translate3d(0, -6px, 0); }
+  .br-card:hover .br-face { border-color: var(--br-line-strong); }
+  .br-card:hover .br-face img { opacity: 1; transform: translate3d(0, -3%, 0) scale(1.04); }
+  .br-card:hover .br-name { opacity: 1; transform: none; }
+}
+@media (hover: none) {
+  .br-card:active { transform: scale(0.96); }
+  .br-card:active .br-face img { opacity: 1; }
+}
+
+/* telas bem pequenas: tira o nome (não cabe) */
+@media (max-width: 420px) {
+  .br-name { display: none; }
+  .br-face { padding: 9% 10%; }
+}
+
+/* =========================================================================
+   KEYFRAMES
+   ========================================================================= */
+@keyframes br-marquee { to { transform: translate3d(-50%, 0, 0); } }
+@keyframes br-rise { to { opacity: 1; transform: none; } }
+@keyframes br-draw { to { stroke-dashoffset: 0; } }
+@keyframes br-ping { 75%, 100% { transform: scale(2.6); opacity: 0; } }
+
+/* =========================================================================
+   Acessibilidade: sem movimento -> linhas viram rolagem manual
+   ========================================================================= */
+@media (prefers-reduced-motion: reduce) {
+  .br *,
+  .br *::before,
+  .br *::after {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+  }
+  .br-rv, .br-row { opacity: 1; transform: none; }
+  .br-squig path { stroke-dashoffset: 0; }
+  .br-track { will-change: auto !important; }
+  .br-viewport { overflow-x: auto; }
+}

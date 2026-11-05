@@ -1,0 +1,116 @@
+/* =========================================================================
+   GARANTIA · selo 90 dias (cores vivas + brilho)
+   ========================================================================= */
+
+@keyframes spinClockwise {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes spinCounter {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+
+@keyframes glowBreath {
+  0%, 100% { opacity: 0.55; transform: translateX(-50%) scale(0.96); }
+  50% { opacity: 1; transform: translateX(-50%) scale(1.04); }
+}
+
+@keyframes numberPulse {
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 8px rgb(26 255 124 / 0.7)); }
+  50% { transform: scale(1.05); filter: drop-shadow(0 0 22px rgb(26 255 124 / 1)); }
+}
+
+/* ---------- Giro (igual ao original) ---------- */
+.circleOuter {
+  animation: spinClockwise 30s linear infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+.circleMiddle {
+  animation: spinClockwise 25s linear infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+.circleInner {
+  animation: spinClockwise 20s linear infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+.textElements {
+  animation: spinCounter 35s linear infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+/* ---------- Brilho de fundo atrás do selo ---------- */
+.glow {
+  position: absolute;
+  top: 3rem;
+  left: 50%;
+  z-index: 0;
+  width: min(40rem, 110vw);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 50%, rgb(26 255 124 / 0.22) 0%, transparent 32%),
+    radial-gradient(circle at 50% 50%, rgb(0 140 255 / 0.4) 20%, rgb(80 60 255 / 0.22) 45%, transparent 68%);
+  transform: translateX(-50%);
+  animation: glowBreath 5s ease-in-out infinite;
+}
+
+/* ---------- Cores vivas (CSS ganha dos atributos do SVG) ---------- */
+
+/* anel externo: azul elétrico + brilho */
+.root .circleOuter path {
+  stroke: #2f80ff;
+  opacity: 1;
+}
+.root .circleOuter {
+  filter: drop-shadow(0 0 6px rgb(47 128 255 / 0.9));
+}
+
+/* anel do meio: ciano neon + brilho */
+.root .circleMiddle path {
+  stroke: #00f0ff;
+}
+.root .circleMiddle {
+  filter: drop-shadow(0 0 7px rgb(0 240 255 / 0.95));
+}
+
+/* anel interno: violeta/magenta vivo (antes quase preto) */
+.root .circleInner path {
+  stroke: #00f0ff;
+  opacity: 0.9;
+}
+.root .circleInner {
+  filter: drop-shadow(0 0 8px rgb(0 240 255 / 0.9));
+}
+
+/* texto "90 DIAS DE GARANTIA" e bolinhas: verde neon + brilho */
+.root .textElements path {
+  fill: #2dff8a;
+}
+.root .textElements {
+  filter: drop-shadow(0 0 5px rgb(45 255 138 / 0.9));
+}
+
+/* número 90: verde neon com pulso */
+.root g[mask] > path {
+  fill: #2dff8a;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: numberPulse 2.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glow,
+  .root g[mask] > path {
+    animation: none;
+  }
+}

@@ -1,0 +1,524 @@
+/* =========================================================================
+   FOOTER · Eletrônica Joana Dark
+   Conceito: painel de controle. Faixa de chamada com borda de energia,
+   colunas com hover "terminal", circuito com pulsos e wordmark gigante
+   com feixe de scanner.
+   Leve: sem blur/backdrop-filter, só transform/opacity, pausa fora da tela.
+   Responsivo fluido. Prefixo .ft- (sem conflito).
+   ========================================================================= */
+
+.ft {
+  --ft-blue: oklch(0.62 0.22 258);
+  --ft-indigo: oklch(0.5 0.22 275);
+  --ft-cyan: oklch(0.84 0.14 200);
+  --ft-gold: oklch(0.88 0.18 95);
+  --ft-green: oklch(0.8 0.2 155);
+  --ft-ink: oklch(0.07 0.026 256);
+  --ft-line: oklch(1 0 0 / 0.09);
+  --ft-text: oklch(0.98 0 0);
+  --ft-muted: oklch(0.72 0.02 255);
+  --ft-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --ft-spring: cubic-bezier(0.3, 1.45, 0.5, 1);
+  --mk: clamp(3.4rem, 16vw, 14rem);
+
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: var(--ft-ink);
+  color: var(--ft-text);
+}
+/* linha de energia no topo */
+.ft::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--ft-blue), var(--ft-cyan), var(--ft-gold), transparent);
+  background-size: 200% 100%;
+  animation: ft-flow 8s linear infinite;
+}
+.ft[data-live="false"]::before { animation-play-state: paused; }
+
+/* ---------- Fundo ---------- */
+.ft-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(60% 50% at 10% 0%, oklch(0.55 0.22 262 / 0.18), transparent 70%),
+    radial-gradient(50% 50% at 95% 40%, oklch(0.88 0.18 95 / 0.06), transparent 70%);
+}
+.ft-bg__grid {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(oklch(1 0 0 / 0.09) 1px, transparent 1.2px);
+  background-size: 28px 28px;
+  -webkit-mask-image: linear-gradient(to bottom, #000, transparent 85%);
+  mask-image: linear-gradient(to bottom, #000, transparent 85%);
+}
+.ft-traces {
+  position: absolute;
+  right: 0;
+  top: 18%;
+  width: min(44vw, 30rem);
+  opacity: 0.5;
+}
+.ft-traces path { fill: none; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+.ft-traces .base { stroke: oklch(0.62 0.22 258 / 0.3); }
+.ft-traces .pulse {
+  stroke: var(--ft-cyan);
+  stroke-dasharray: 14 100;
+  stroke-dashoffset: 14;
+  animation: ft-pulse 3.8s linear infinite;
+}
+.ft-traces .pulse:nth-of-type(2) { stroke: var(--ft-gold); animation-delay: 1.4s; }
+.ft-traces circle { fill: var(--ft-ink); stroke: oklch(0.62 0.22 258 / 0.7); stroke-width: 1.4; }
+.ft[data-live="false"] .ft-traces .pulse { animation-play-state: paused; }
+@media (max-width: 767px) { .ft-traces { display: none; } }
+
+.ft-wrap {
+  position: relative;
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: clamp(3.5rem, 8vw, 6rem) 1rem 0;
+}
+@media (min-width: 640px) { .ft-wrap { padding-left: 1.5rem; padding-right: 1.5rem; } }
+@media (min-width: 1024px) { .ft-wrap { padding-left: 2rem; padding-right: 2rem; } }
+
+/* ---------- Reveal ---------- */
+.ft-rv { opacity: 0; transform: translateY(24px); }
+.ft[data-seen="true"] .ft-rv {
+  animation: ft-rise 0.9s var(--ft-ease) forwards;
+  animation-delay: calc(var(--d, 0) * 0.09s);
+}
+
+/* =========================================================================
+   FAIXA DE CHAMADA (borda de energia girando)
+   ========================================================================= */
+.ft-cta {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  margin-bottom: clamp(3rem, 7vw, 5rem);
+  padding: 1px;
+  border-radius: clamp(1.25rem, 3vw, 1.9rem);
+  box-shadow: 0 40px 80px -40px oklch(0.62 0.22 258 / 0.6);
+}
+.ft-cta::before {
+  content: "";
+  position: absolute;
+  inset: -150%;
+  z-index: -1;
+  background: conic-gradient(from 0deg, var(--ft-blue), var(--ft-cyan), var(--ft-gold), var(--ft-indigo), var(--ft-blue));
+  animation: ft-spin 9s linear infinite;
+}
+.ft[data-live="false"] .ft-cta::before { animation-play-state: paused; }
+.ft-cta__in {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: clamp(1.4rem, 4.5vw, 3rem);
+  border-radius: calc(clamp(1.25rem, 3vw, 1.9rem) - 1px);
+  background:
+    radial-gradient(70% 120% at 100% 0%, oklch(0.5 0.22 275 / 0.35), transparent 70%),
+    radial-gradient(60% 100% at 0% 100%, oklch(0.55 0.22 262 / 0.25), transparent 70%),
+    oklch(0.11 0.04 258);
+}
+@media (min-width: 860px) {
+  .ft-cta__in { flex-direction: row; align-items: center; justify-content: space-between; gap: 2.5rem; }
+}
+.ft-cta__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0 0 0.9rem;
+  font-family: ui-monospace, monospace;
+  font-size: clamp(0.58rem, 1.8vw, 0.68rem);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ft-cyan);
+}
+.ft-dot {
+  position: relative;
+  flex: none;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: var(--ft-green);
+}
+.ft-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: inherit;
+  animation: ft-ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+.ft-cta h3 {
+  margin: 0 0 0.6rem;
+  font-family: var(--font-serif, serif);
+  font-size: clamp(1.6rem, 4.6vw, 2.9rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+}
+.ft-cta h3 em {
+  font-style: normal;
+  background: linear-gradient(100deg, var(--ft-cyan), var(--ft-gold));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.ft-cta p { margin: 0; max-width: 32rem; font-size: clamp(0.92rem, 2.2vw, 1.05rem); line-height: 1.65; color: var(--ft-muted); }
+.ft-cta__btns { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+
+.ft-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 0.95rem 1.5rem;
+  overflow: hidden;
+  border-radius: 999px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform 0.3s var(--ft-spring), box-shadow 0.3s, border-color 0.3s, background 0.3s;
+}
+.ft-btn svg { width: 1.1rem; height: 1.1rem; flex: none; }
+.ft-btn--wa {
+  color: oklch(0.14 0.03 255);
+  background: linear-gradient(135deg, var(--ft-green), oklch(0.7 0.2 160));
+  box-shadow: inset 0 0 0 1px oklch(1 0 0 / 0.25), 0 14px 34px -10px oklch(0.8 0.2 155 / 0.7);
+}
+.ft-btn--wa::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 30%, oklch(1 0 0 / 0.45) 50%, transparent 70%);
+  transform: translateX(-120%);
+  animation: ft-sweep 3.6s ease-in-out infinite;
+}
+.ft-btn--wa > * { position: relative; }
+.ft-btn--ghost {
+  color: var(--ft-text);
+  border: 1px solid var(--ft-line);
+  background: oklch(0.17 0.04 258 / 0.8);
+}
+@media (hover: hover) {
+  .ft-btn:hover { transform: translateY(-3px); }
+  .ft-btn--ghost:hover { border-color: oklch(0.84 0.14 200 / 0.7); background: oklch(0.22 0.07 258); }
+}
+.ft-btn:active { transform: scale(0.96); }
+.ft-btn:focus-visible,
+.ft-link:focus-visible,
+.ft-social a:focus-visible,
+.ft-contact a:focus-visible,
+.ft-top:focus-visible { outline: 2px solid var(--ft-cyan); outline-offset: 3px; }
+
+/* =========================================================================
+   GRID DE COLUNAS
+   ========================================================================= */
+.ft-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(2rem, 4.5vw, 3rem) clamp(1.5rem, 4vw, 3rem);
+}
+@media (min-width: 520px) {
+  .ft-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ft-col--brand, .ft-col--contact { grid-column: 1 / -1; }
+}
+@media (min-width: 1024px) {
+  .ft-grid { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+  .ft-col--brand { grid-column: span 4; }
+  .ft-col--links { grid-column: span 2; }
+  .ft-col--services { grid-column: span 3; }
+  .ft-col--contact { grid-column: span 3; }
+}
+
+/* marca */
+.ft-logo { display: inline-flex; align-items: center; gap: 0.8rem; margin-bottom: 1.1rem; text-decoration: none; color: inherit; }
+.ft-logo__ring {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  flex: none;
+  width: 3.6rem;
+  height: 3.6rem;
+  padding: 2px;
+  border-radius: 50%;
+  box-shadow: 0 0 24px -4px oklch(0.62 0.22 258 / 0.7);
+  transition: transform 0.4s var(--ft-spring);
+}
+.ft-logo__ring::before {
+  content: "";
+  position: absolute;
+  inset: -50%;
+  z-index: -1;
+  background: conic-gradient(var(--ft-blue), var(--ft-cyan), var(--ft-gold), var(--ft-blue));
+  animation: ft-spin 5s linear infinite;
+}
+.ft[data-live="false"] .ft-logo__ring::before { animation-play-state: paused; }
+.ft-logo__ring img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; background: var(--ft-ink); }
+@media (hover: hover) { .ft-logo:hover .ft-logo__ring { transform: scale(1.08) rotate(-5deg); } }
+.ft-logo__text { display: flex; flex-direction: column; line-height: 1; }
+.ft-logo__title {
+  font-family: var(--font-serif, serif);
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  background: linear-gradient(180deg, #fff 30%, oklch(0.82 0.06 250));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.ft-logo__sub {
+  margin-top: 0.35rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--ft-gold);
+}
+.ft-about { max-width: 24rem; margin: 0 0 1.4rem; font-size: 0.92rem; line-height: 1.7; color: var(--ft-muted); }
+.ft-about strong { color: var(--ft-text); font-weight: 600; }
+
+.ft-social { display: flex; gap: 0.6rem; margin: 0; padding: 0; list-style: none; }
+.ft-social a {
+  display: grid;
+  place-items: center;
+  width: 2.8rem;
+  height: 2.8rem;
+  border-radius: 0.9rem;
+  border: 1px solid var(--ft-line);
+  background: oklch(0.15 0.04 258);
+  color: var(--ft-text);
+  transition: transform 0.35s var(--ft-spring), background 0.3s, border-color 0.3s, color 0.3s, box-shadow 0.3s;
+}
+.ft-social svg { width: 1.2rem; height: 1.2rem; transition: transform 0.35s var(--ft-spring); }
+@media (hover: hover) {
+  .ft-social a:hover {
+    transform: translateY(-4px);
+    background: linear-gradient(135deg, var(--ft-blue), var(--ft-indigo));
+    border-color: oklch(0.84 0.14 200 / 0.6);
+    box-shadow: 0 14px 28px -10px oklch(0.62 0.22 258 / 0.8);
+  }
+  .ft-social li:last-child a:hover {
+    background: linear-gradient(135deg, var(--ft-green), oklch(0.7 0.2 160));
+    color: oklch(0.14 0.03 255);
+    box-shadow: 0 14px 28px -10px oklch(0.8 0.2 155 / 0.8);
+  }
+  .ft-social a:hover svg { transform: scale(1.15) rotate(-6deg); }
+}
+
+/* títulos de coluna */
+.ft-h {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin: 0 0 1.2rem;
+  font-family: ui-monospace, monospace;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ft-gold);
+}
+.ft-h::before { content: ""; width: 1.2rem; height: 1px; background: var(--ft-gold); }
+.ft-h::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, var(--ft-line), transparent); }
+
+/* listas de links (hover estilo terminal) */
+.ft-list { display: grid; gap: 0.15rem; margin: 0; padding: 0; list-style: none; }
+.ft-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 0;
+  font-size: 0.92rem;
+  color: var(--ft-muted);
+  text-decoration: none;
+  transition: color 0.25s, transform 0.35s var(--ft-ease);
+}
+.ft-link::before {
+  content: "›";
+  position: absolute;
+  left: -0.9rem;
+  color: var(--ft-cyan);
+  opacity: 0;
+  transition: opacity 0.25s, transform 0.35s var(--ft-ease);
+  transform: translateX(-6px);
+}
+@media (hover: hover) {
+  .ft-link:hover { color: var(--ft-text); transform: translateX(0.9rem); }
+  .ft-link:hover::before { opacity: 1; transform: none; }
+}
+.ft-link:active { color: var(--ft-text); }
+
+/* contato */
+.ft-contact { display: grid; gap: 0.65rem; margin: 0; padding: 0; list-style: none; }
+@media (min-width: 520px) and (max-width: 1023px) {
+  .ft-contact { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+.ft-contact a,
+.ft-contact .ft-addr {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.8rem;
+  height: 100%;
+  padding: 0.75rem 0.9rem;
+  border-radius: 1rem;
+  border: 1px solid var(--ft-line);
+  background: oklch(0.14 0.04 258 / 0.8);
+  color: inherit;
+  text-decoration: none;
+  transition: transform 0.35s var(--ft-spring), border-color 0.3s, background 0.3s;
+}
+@media (hover: hover) {
+  .ft-contact a:hover { transform: translateY(-3px); border-color: oklch(0.84 0.14 200 / 0.55); background: oklch(0.18 0.06 258); }
+}
+.ft-contact i {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 0.7rem;
+  background: linear-gradient(135deg, var(--ft-blue), var(--ft-indigo));
+}
+.ft-contact li:nth-child(1) i { background: linear-gradient(135deg, var(--ft-green), oklch(0.65 0.2 165)); }
+.ft-contact li:nth-child(1) svg { color: oklch(0.14 0.03 255); }
+.ft-contact svg { width: 1rem; height: 1rem; color: #fff; }
+.ft-contact small {
+  display: block;
+  margin-bottom: 0.1rem;
+  font-family: ui-monospace, monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ft-cyan);
+}
+.ft-contact span { display: block; min-width: 0; font-size: 0.88rem; line-height: 1.45; overflow-wrap: anywhere; }
+
+/* =========================================================================
+   BARRA INFERIOR
+   ========================================================================= */
+.ft-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  margin-top: clamp(2.5rem, 6vw, 4rem);
+  padding: 1.5rem 0;
+  border-top: 1px solid var(--ft-line);
+}
+@media (min-width: 768px) {
+  .ft-bar { flex-direction: row; align-items: center; justify-content: space-between; }
+}
+.ft-copy { margin: 0; font-size: 0.82rem; color: var(--ft-muted); }
+.ft-bar__right { display: flex; flex-wrap: wrap; align-items: center; gap: 0.8rem 1.5rem; }
+.ft-legal { display: flex; flex-wrap: wrap; gap: 0.4rem 1.4rem; }
+.ft-legal a { font-size: 0.82rem; color: var(--ft-muted); text-decoration: none; transition: color 0.25s; }
+@media (hover: hover) { .ft-legal a:hover { color: var(--ft-text); } }
+
+.ft-top {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.5rem 0.5rem 1rem;
+  border-radius: 999px;
+  border: 1px solid var(--ft-line);
+  background: oklch(0.15 0.04 258);
+  font-family: ui-monospace, monospace;
+  font-size: 0.64rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ft-text);
+  cursor: pointer;
+  transition: transform 0.35s var(--ft-spring), border-color 0.3s;
+}
+.ft-top i {
+  display: grid;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--ft-blue), var(--ft-indigo));
+}
+.ft-top svg { width: 0.95rem; height: 0.95rem; color: #fff; }
+@media (hover: hover) {
+  .ft-top:hover { transform: translateY(-3px); border-color: oklch(0.84 0.14 200 / 0.6); }
+  .ft-top:hover svg { animation: ft-up 0.8s ease-in-out infinite; }
+}
+.ft-top:active { transform: scale(0.95); }
+
+/* =========================================================================
+   WORDMARK GIGANTE + FEIXE DE SCANNER
+   ========================================================================= */
+.ft-mark {
+  position: relative;
+  height: calc(var(--mk) * 0.72);
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+}
+.ft-mark span {
+  display: block;
+  text-align: center;
+  font-family: var(--font-serif, serif);
+  font-size: var(--mk);
+  font-weight: 900;
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  white-space: nowrap;
+  text-transform: uppercase;
+  color: transparent;
+  -webkit-text-stroke: 1px oklch(0.84 0.14 200 / 0.22);
+  background: linear-gradient(to bottom, oklch(0.62 0.22 258 / 0.28), transparent 85%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+.ft-mark__beam {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: clamp(5rem, 16vw, 12rem);
+  background: linear-gradient(90deg, transparent, oklch(0.84 0.14 200 / 0.12) 65%, oklch(0.84 0.14 200 / 0.32));
+  border-right: 2px solid var(--ft-cyan);
+  box-shadow: 6px 0 18px oklch(0.84 0.14 200 / 0.45);
+  transform: translate3d(-100%, 0, 0);
+  animation: ft-beam 9s cubic-bezier(0.45, 0, 0.55, 1) 1s infinite;
+}
+.ft[data-live="false"] .ft-mark__beam { animation-play-state: paused; }
+
+/* =========================================================================
+   KEYFRAMES
+   ========================================================================= */
+@keyframes ft-rise { to { opacity: 1; transform: none; } }
+@keyframes ft-flow { to { background-position: 200% 0; } }
+@keyframes ft-spin { to { transform: rotate(360deg); } }
+@keyframes ft-ping { 75%, 100% { transform: scale(2.6); opacity: 0; } }
+@keyframes ft-sweep { 0% { transform: translateX(-120%); } 55%, 100% { transform: translateX(120%); } }
+@keyframes ft-pulse { to { stroke-dashoffset: -100; } }
+@keyframes ft-up { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+@keyframes ft-beam {
+  0% { transform: translate3d(-100%, 0, 0); }
+  60%, 100% { transform: translate3d(100vw, 0, 0); }
+}
+
+/* =========================================================================
+   Acessibilidade: menos movimento
+   ========================================================================= */
+@media (prefers-reduced-motion: reduce) {
+  .ft *,
+  .ft *::before,
+  .ft *::after,
+  .ft::before { animation: none !important; transition-duration: 0.01ms !important; }
+  .ft-rv { opacity: 1; transform: none; }
+  .ft-mark__beam { display: none; }
+}
