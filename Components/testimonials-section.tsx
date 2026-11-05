@@ -222,6 +222,13 @@ export function TestimonialsSection() {
           onFocus={() => setHovering(true)}
           onBlur={() => setHovering(false)}
         >
+          {/* Antena (orelhas de coelho) */}
+          <div className="tm-antenna" aria-hidden="true">
+            <i className="tm-antenna__rod tm-antenna__rod--l" />
+            <i className="tm-antenna__rod tm-antenna__rod--r" />
+            <i className="tm-antenna__base" />
+          </div>
+
           <div className="tm-body">
             {/* Tela */}
             <div

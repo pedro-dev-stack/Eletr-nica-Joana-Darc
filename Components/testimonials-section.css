@@ -129,7 +129,69 @@
 }
 /* celular deitado: limita pela altura para a TV caber na tela */
 @media (orientation: landscape) and (max-height: 520px) {
-  .tm-tv { width: min(100%, 62rem, 150svh); }
+  .tm-tv { width: min(100%, 62rem, 135svh); }
+  .tm-antenna { --h: clamp(1.8rem, 8cqw, 4rem); }
+}
+
+/* ---------- Antena (orelhas de coelho) ----------
+   Escala com a largura da TV (cqw). Fica sobre a borda de cima do corpo. */
+.tm-antenna {
+  --h: clamp(2.6rem, 12cqw, 7rem);
+  --bh: clamp(0.55rem, 2.2cqw, 1.2rem);
+  --w: clamp(2px, 0.5cqw, 4px);
+  --a: 30deg;
+  --rod: oklch(0.58 0.012 258);
+  position: relative;
+  z-index: 1;
+  height: var(--h);
+  margin-bottom: -1px;
+  pointer-events: none;
+}
+.tm-antenna__rod {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--bh) * 0.6);
+  width: var(--w);
+  height: calc(var(--h) - var(--bh) * 0.6);
+  margin-left: calc(var(--w) / -2);
+  border-radius: 999px;
+  background: var(--rod);
+  transform-origin: 50% 100%;
+  transition: background-color 0.4s;
+}
+.tm-antenna__rod--l { transform: rotate(calc(var(--a) * -1)); }
+.tm-antenna__rod--r { transform: rotate(var(--a)); }
+/* bolinha na ponta: acende em verde quando a TV está ligada */
+.tm-antenna__rod::after {
+  content: "";
+  position: absolute;
+  top: calc(var(--w) * -1.8);
+  left: 50%;
+  width: calc(var(--w) * 3.6);
+  aspect-ratio: 1;
+  margin-left: calc(var(--w) * -1.8);
+  border-radius: 50%;
+  background: var(--rod);
+  transition: background-color 0.4s, box-shadow 0.4s;
+}
+.tm-tv[data-phase="on"] .tm-antenna__rod::after,
+.tm-tv[data-phase="boot"] .tm-antenna__rod::after {
+  background: var(--tm-green);
+  box-shadow: 0 0 10px oklch(0.82 0.2 150 / 0.7);
+}
+/* base: cúpula achatada que "nasce" do topo da TV */
+.tm-antenna__base {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  z-index: 2;
+  width: clamp(2.6rem, 10cqw, 5.4rem);
+  height: var(--bh);
+  transform: translateX(-50%);
+  border-radius: 999px 999px 0 0;
+  background: var(--tm-body);
+  border: 1px solid var(--tm-body-line);
+  border-bottom: 0;
 }
 
 .tm-body {
