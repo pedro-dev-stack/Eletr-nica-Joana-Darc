@@ -5,6 +5,10 @@
    - Botões físicos no queixo da TV: canal -/+ e ligar/desligar.
    - Ligar: tela abre como TV de verdade + splash de inicialização.
    - Desligar: tela colapsa em linha e some em ponto.
+   - RESPONSIVA DE VERDADE: a tela mantém proporção de TV em qualquer
+     largura e tudo dentro dela escala com a largura da própria tela
+     (container query units: cqw). Celular, tablet e desktop mostram
+     a mesma TV, só em tamanhos diferentes.
    - Leve: só transform/opacity, pausa fora da tela, sem blur.
    Prefixo .tm- (sem conflito).
    ========================================================================= */
@@ -16,7 +20,6 @@
   --tm-foot: oklch(0.17 0.01 258);
   --tm-screen: oklch(0.125 0.04 258);
   --tm-card: oklch(0.17 0.04 258);
-  --tm-card-2: oklch(0.22 0.06 258);
   --tm-recess: oklch(0.12 0.01 258);
   --tm-key: oklch(0.26 0.014 258);
   --tm-key-line: oklch(0.38 0.016 258);
@@ -29,12 +32,12 @@
   --tm-muted: oklch(0.72 0.02 255);
   --tm-ease: cubic-bezier(0.22, 1, 0.36, 1);
   --tm-spring: cubic-bezier(0.3, 1.45, 0.5, 1);
-  --tm-r: clamp(0.6rem, 1.4vw, 1rem);
-  --tm-bz: clamp(0.4rem, 1vw, 0.75rem);
+  --tm-r: clamp(0.55rem, 1.6vw, 1rem);
+  --tm-bz: clamp(0.35rem, 1.1vw, 0.75rem);
 
   position: relative;
   overflow: hidden;
-  padding: clamp(4.5rem, 9vw, 8rem) 1rem clamp(4rem, 8vw, 7rem);
+  padding: clamp(3.5rem, 9vw, 8rem) 1rem clamp(3.5rem, 8vw, 7rem);
   background: var(--tm-bg);
   border-block: 1px solid var(--tm-line);
   color: var(--tm-text);
@@ -68,12 +71,12 @@
 /* =========================================================================
    CABEÇALHO
    ========================================================================= */
-.tm-head { max-width: 46rem; margin: 0 auto clamp(2rem, 5vw, 3.2rem); text-align: center; }
+.tm-head { max-width: 46rem; margin: 0 auto clamp(1.6rem, 5vw, 3.2rem); text-align: center; }
 .tm-eyebrow {
   display: inline-flex;
   align-items: center;
   gap: 0.8rem;
-  margin: 0 0 1.2rem;
+  margin: 0 0 1.1rem;
   font-size: clamp(0.62rem, 1.8vw, 0.72rem);
   font-weight: 700;
   letter-spacing: 0.22em;
@@ -88,26 +91,26 @@
   background: var(--tm-gold);
 }
 .tm-title {
-  margin: 0 0 1.4rem;
+  margin: 0 0 1.2rem;
   font-family: var(--font-serif, serif);
-  font-size: clamp(1.95rem, 6vw, 3.6rem);
+  font-size: clamp(1.8rem, 6vw, 3.6rem);
   font-weight: 800;
-  line-height: 1.06;
+  line-height: 1.08;
   letter-spacing: -0.035em;
   text-wrap: balance;
 }
 .tm-title em { font-style: italic; color: var(--tm-accent); }
-.tm-meta { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.6rem; }
+.tm-meta { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; }
 .tm-pill {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.4rem 0.95rem;
+  padding: 0.4rem 0.9rem;
   border-radius: 999px;
   border: 1px solid var(--tm-line);
   background: var(--tm-card);
   font-family: ui-monospace, monospace;
-  font-size: clamp(0.6rem, 1.9vw, 0.7rem);
+  font-size: clamp(0.58rem, 1.9vw, 0.7rem);
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--tm-muted);
@@ -117,8 +120,17 @@
 
 /* =========================================================================
    A TV
+   O container "tv" mede a largura da TV inteira (queixo, botões, pés).
    ========================================================================= */
-.tm-tv { width: min(100%, 62rem); margin: 0 auto; }
+.tm-tv {
+  container: tv / inline-size;
+  width: min(100%, 62rem);
+  margin: 0 auto;
+}
+/* celular deitado: limita pela altura para a TV caber na tela */
+@media (orientation: landscape) and (max-height: 520px) {
+  .tm-tv { width: min(100%, 62rem, 150svh); }
+}
 
 .tm-body {
   position: relative;
@@ -134,10 +146,11 @@
   box-shadow: 0 0 0 1px oklch(0 0 0), 0 40px 80px -40px oklch(0.62 0.22 258 / 0.55);
 }
 
-/* vidro da tela */
+/* vidro da tela: sempre proporção de TV; é o container "screen" (cqw) */
 .tm-screen {
+  container: screen / inline-size;
   position: relative;
-  min-height: 22rem;
+  aspect-ratio: 16 / 9;
   overflow: hidden;
   border-radius: calc(var(--tm-r) - 0.2rem);
   background: oklch(0.04 0.005 258);
@@ -145,8 +158,9 @@
   user-select: none;
   -webkit-user-select: none;
 }
-@media (min-width: 700px) {
-  .tm-screen { aspect-ratio: 16 / 9; min-height: 21rem; }
+/* celulares estreitos: 4:3 para o texto respirar (continua sendo uma TV) */
+@media (max-width: 520px) {
+  .tm-screen { aspect-ratio: 4 / 3; }
 }
 /* reflexo do vidro: forma chapada (sem gradiente) */
 .tm-glare {
@@ -184,16 +198,18 @@
   place-content: center;
   justify-items: center;
   gap: 0.7rem;
+  padding: 0 1rem;
+  text-align: center;
   font-family: ui-monospace, monospace;
-  font-size: clamp(0.56rem, 1.7vw, 0.68rem);
-  letter-spacing: 0.22em;
+  font-size: clamp(0.5rem, 1.7cqw, 0.68rem);
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: oklch(1 0 0 / 0.38);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.4s;
 }
-.tm-hint svg { width: 1.6rem; height: 1.6rem; }
+.tm-hint svg { width: clamp(1.3rem, 4cqw, 1.8rem); height: clamp(1.3rem, 4cqw, 1.8rem); }
 .tm-tv[data-phase="off"] .tm-hint { opacity: 1; transition-delay: 0.7s; }
 
 /* ---------- Splash de inicialização ---------- */
@@ -204,28 +220,29 @@
   display: grid;
   place-content: center;
   justify-items: center;
-  gap: 1rem;
+  gap: clamp(0.5rem, 2cqw, 1rem);
+  padding: 0 1rem;
   text-align: center;
   opacity: 0;
   animation: tm-fade 0.5s ease-out 0.45s forwards;
 }
 .tm-boot b {
   font-family: var(--font-serif, serif);
-  font-size: clamp(1.4rem, 4.6vw, 2.6rem);
+  font-size: clamp(1.15rem, 4.4cqw, 2.6rem);
   font-weight: 800;
   letter-spacing: -0.02em;
 }
 .tm-boot small {
   font-family: ui-monospace, monospace;
-  font-size: clamp(0.55rem, 1.6vw, 0.66rem);
-  letter-spacing: 0.3em;
+  font-size: clamp(0.5rem, 1.6cqw, 0.66rem);
+  letter-spacing: 0.28em;
   text-transform: uppercase;
   color: var(--tm-gold);
 }
 .tm-boot__dots { display: flex; gap: 0.45rem; }
 .tm-boot__dots i {
-  width: 0.5rem;
-  height: 0.5rem;
+  width: clamp(0.38rem, 1.1cqw, 0.5rem);
+  height: clamp(0.38rem, 1.1cqw, 0.5rem);
   border-radius: 50%;
   background: var(--tm-accent);
   animation: tm-bounce 0.9s ease-in-out infinite;
@@ -233,48 +250,49 @@
 .tm-boot__dots i:nth-child(2) { animation-delay: 0.15s; }
 .tm-boot__dots i:nth-child(3) { animation-delay: 0.3s; }
 
-/* ---------- UI da Smart TV ---------- */
+/* ---------- UI da Smart TV (tudo escala com a largura da tela) ---------- */
 .tm-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.8rem;
-  padding: clamp(0.7rem, 2vw, 1.1rem) clamp(0.9rem, 2.8vw, 1.9rem) 0;
+  gap: 0.6rem;
+  padding: clamp(0.5rem, 2cqw, 1.1rem) clamp(0.75rem, 3cqw, 1.9rem) 0;
   font-family: ui-monospace, monospace;
-  font-size: clamp(0.5rem, 1.5vw, 0.64rem);
-  letter-spacing: 0.22em;
+  font-size: clamp(0.5rem, 1.45cqw, 0.64rem);
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--tm-muted);
 }
-.tm-top span { display: inline-flex; align-items: center; gap: 0.5rem; }
+.tm-top span { display: inline-flex; align-items: center; gap: 0.45rem; min-width: 0; white-space: nowrap; }
 .tm-top b { color: var(--tm-gold); font-weight: 600; }
-.tm-dot { width: 0.42rem; height: 0.42rem; border-radius: 50%; background: var(--tm-accent); }
+.tm-dot { width: 0.42rem; height: 0.42rem; border-radius: 50%; background: var(--tm-accent); flex: none; }
 
 .tm-content {
   position: relative;
   flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 0 clamp(0.9rem, 3.4vw, 2.8rem);
+  padding: clamp(0.3rem, 1.4cqw, 0.9rem) clamp(0.85rem, 3.6cqw, 2.8rem);
   animation: tm-in-next 0.6s var(--tm-ease) both;
 }
 .tm-content[data-dir="prev"] { animation-name: tm-in-prev; }
 .tm-glyph {
   position: absolute;
-  top: -0.6rem;
-  left: clamp(0.5rem, 2.6vw, 2.2rem);
+  top: -0.4rem;
+  left: clamp(0.4rem, 2.6cqw, 2.2rem);
   font-family: var(--font-serif, serif);
-  font-size: clamp(4.5rem, 12vw, 8rem);
+  font-size: clamp(3rem, 11cqw, 8rem);
   font-style: italic;
   line-height: 1;
   color: oklch(0.82 0.13 215 / 0.18);
   pointer-events: none;
 }
-.tm-stars { position: relative; display: flex; gap: 0.2rem; margin-bottom: clamp(0.6rem, 1.8vw, 1rem); }
+.tm-stars { position: relative; display: flex; gap: 0.18rem; margin-bottom: clamp(0.4rem, 1.7cqw, 1rem); }
 .tm-star {
-  width: clamp(0.9rem, 2.3vw, 1.15rem);
-  height: clamp(0.9rem, 2.3vw, 1.15rem);
+  width: clamp(0.72rem, 2.3cqw, 1.15rem);
+  height: clamp(0.72rem, 2.3cqw, 1.15rem);
   fill: var(--tm-gold);
   transform: scale(0);
   animation: tm-pop 0.45s var(--tm-spring) forwards;
@@ -283,63 +301,44 @@
 .tm-quote {
   position: relative;
   max-width: 42rem;
-  margin: 0 0 clamp(0.9rem, 2.6vw, 1.5rem);
+  margin: 0 0 clamp(0.6rem, 2.4cqw, 1.5rem);
   font-family: var(--font-serif, serif);
-  font-size: clamp(1rem, 2.35vw, 1.6rem);
+  font-size: clamp(0.78rem, 2.7cqw, 1.6rem);
   font-style: italic;
   font-weight: 500;
-  line-height: 1.5;
+  line-height: 1.45;
   text-wrap: pretty;
 }
-.tm-author { position: relative; display: flex; align-items: center; gap: 0.8rem; }
+.tm-author { position: relative; display: flex; align-items: center; gap: clamp(0.5rem, 1.6cqw, 0.8rem); }
 .tm-avatar {
   display: grid;
   place-items: center;
   flex: none;
-  width: clamp(2.3rem, 5vw, 3rem);
+  width: clamp(1.9rem, 4.8cqw, 3rem);
   aspect-ratio: 1;
   border-radius: 50%;
   border: 2px solid var(--tm-accent);
   background: var(--tm-card);
   font-family: var(--font-serif, serif);
-  font-size: clamp(0.72rem, 1.8vw, 0.9rem);
+  font-size: clamp(0.6rem, 1.8cqw, 0.9rem);
   font-weight: 700;
 }
-.tm-name { margin: 0; font-size: clamp(0.9rem, 2.2vw, 1.05rem); font-weight: 700; }
+.tm-name { margin: 0; font-size: clamp(0.8rem, 2.1cqw, 1.05rem); font-weight: 700; line-height: 1.2; }
 .tm-device {
-  margin: 0.15rem 0 0;
+  margin: 0.12rem 0 0;
   font-family: ui-monospace, monospace;
-  font-size: clamp(0.56rem, 1.6vw, 0.68rem);
-  letter-spacing: 0.14em;
+  font-size: clamp(0.5rem, 1.5cqw, 0.68rem);
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--tm-accent);
-}
-
-/* ---------- Trilho de canais (dentro da tela) ---------- */
-.tm-rail {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: clamp(0.35rem, 1vw, 0.6rem);
-  padding: 0 clamp(0.7rem, 2.4vw, 1.5rem) clamp(0.7rem, 2vw, 1.2rem);
-}
-
-/* progresso do canal (o fim da barra avança o canal) */
-.tm-prog {
-  position: absolute;
-  left: 0.6rem;
-  right: 0.6rem;
-  bottom: 0;
-  height: 2px;
-  background: oklch(1 0 0 / 0.08);
-  opacity: 0;
 }
 
 /* ---------- OSD (número do canal) e piscada de troca ---------- */
 .tm-osd {
   position: absolute;
   z-index: 4;
-  top: clamp(2rem, 5.2vw, 3.2rem);
-  right: clamp(0.9rem, 2.8vw, 1.9rem);
+  top: clamp(1.6rem, 5cqw, 3.2rem);
+  right: clamp(0.75rem, 3cqw, 1.9rem);
   text-align: right;
   font-family: ui-monospace, monospace;
   opacity: 0;
@@ -348,7 +347,7 @@
 }
 .tm-osd b {
   display: block;
-  font-size: clamp(1.8rem, 5.2vw, 3.2rem);
+  font-size: clamp(1.3rem, 5cqw, 3.2rem);
   font-weight: 700;
   line-height: 1;
   letter-spacing: 0.04em;
@@ -357,9 +356,9 @@
 }
 .tm-osd small {
   display: block;
-  margin-top: 0.3rem;
-  font-size: clamp(0.55rem, 1.6vw, 0.7rem);
-  letter-spacing: 0.22em;
+  margin-top: 0.25rem;
+  font-size: clamp(0.5rem, 1.6cqw, 0.7rem);
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--tm-text);
   text-shadow: 1px 1px 0 oklch(0 0 0);
@@ -375,31 +374,32 @@
 }
 
 /* =========================================================================
-   QUEIXO DA TV: logo, LED e botões físicos
+   QUEIXO DA TV: logo, LED e botões físicos (escala com a largura da TV)
    ========================================================================= */
 .tm-chin {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.8rem;
-  padding: clamp(0.6rem, 1.5vw, 0.9rem) clamp(0.4rem, 1.4vw, 0.9rem) clamp(0.65rem, 1.6vw, 1rem);
+  gap: 0.6rem;
+  padding: clamp(0.5rem, 1.6cqw, 0.9rem) clamp(0.3rem, 1.4cqw, 0.9rem) clamp(0.55rem, 1.7cqw, 1rem);
 }
 .tm-brand {
   display: inline-flex;
   align-items: center;
-  gap: 0.65rem;
+  gap: 0.55rem;
   min-width: 0;
-  font-size: clamp(0.55rem, 1.6vw, 0.68rem);
+  flex: 1 1 0;
+  font-size: clamp(0.5rem, 1.6cqw, 0.68rem);
   font-weight: 700;
-  letter-spacing: 0.24em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--tm-muted);
 }
-.tm-brand span:last-child { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.tm-brand span:last-child { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .tm-led {
   flex: none;
-  width: 0.45rem;
-  height: 0.45rem;
+  width: clamp(0.38rem, 1.1cqw, 0.45rem);
+  height: clamp(0.38rem, 1.1cqw, 0.45rem);
   border-radius: 50%;
   background: var(--tm-red);
   animation: tm-standby 2.4s ease-in-out infinite;
@@ -407,42 +407,46 @@
 .tm-tv[data-phase="on"] .tm-led,
 .tm-tv[data-phase="boot"] .tm-led { background: var(--tm-green); box-shadow: 0 0 8px var(--tm-green); animation: none; }
 .tm[data-live="false"] .tm-led { animation-play-state: paused; }
-@media (max-width: 419px) { .tm-brand span:last-child { display: none; } }
 
-.tm-keys { display: flex; align-items: center; gap: clamp(0.45rem, 1.4vw, 0.8rem); }
+.tm-keys { display: flex; flex: none; align-items: center; gap: clamp(0.35rem, 1.4cqw, 0.8rem); }
 /* "encaixe" dos botões: baixo-relevo no corpo da TV */
 .tm-dock {
   display: flex;
   align-items: center;
-  padding: 0.22rem;
+  padding: 0.2rem;
   border-radius: 999px;
   background: var(--tm-recess);
   box-shadow: inset 0 2px 5px oklch(0 0 0 / 0.75), 0 1px 0 oklch(1 0 0 / 0.06);
 }
 .tm-chlbl {
-  min-width: clamp(3rem, 8vw, 3.8rem);
+  min-width: clamp(2.5rem, 7cqw, 3.8rem);
   text-align: center;
   font-family: ui-monospace, monospace;
-  font-size: clamp(0.58rem, 1.6vw, 0.68rem);
-  letter-spacing: 0.16em;
+  font-size: clamp(0.52rem, 1.6cqw, 0.68rem);
+  letter-spacing: 0.14em;
   color: var(--tm-muted);
 }
 .tm-chlbl b { color: var(--tm-text); font-weight: 600; }
 .tm-tv:not([data-phase="on"]) .tm-chlbl b { color: var(--tm-muted); }
 
+/* botões: nunca menores que 40px (alvo de toque), 44px em telas de toque */
 .tm-key {
   position: relative;
   display: grid;
   place-items: center;
-  width: clamp(2.6rem, 6.4vw, 2.95rem);
+  width: clamp(2.5rem, 6.4cqw, 2.95rem);
   aspect-ratio: 1;
   border-radius: 50%;
   border: 1px solid var(--tm-key-line);
   background: var(--tm-key);
   color: var(--tm-text);
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
   box-shadow: 0 2px 0 oklch(0 0 0 / 0.8), inset 0 1px 0 oklch(1 0 0 / 0.1);
   transition: transform 0.12s, box-shadow 0.12s, border-color 0.2s, color 0.2s, background 0.2s;
+}
+@media (pointer: coarse) {
+  .tm-key { width: max(2.75rem, 6.4cqw); }
 }
 .tm-key svg { width: 1.2rem; height: 1.2rem; }
 @media (hover: hover) {
@@ -483,24 +487,34 @@
   pointer-events: none;
 }
 
+/* TV bem estreita (celular pequeno): queixo mais compacto, sem espremer */
+@container tv (max-width: 380px) {
+  .tm-brand { letter-spacing: 0.1em; gap: 0.4rem; }
+  .tm-keys { gap: 0.3rem; }
+  .tm-chlbl { min-width: 2.2rem; letter-spacing: 0.06em; }
+}
+
 /* =========================================================================
    PÉS E DICA
    ========================================================================= */
 .tm-feet { display: flex; justify-content: space-between; padding: 0 14%; }
 .tm-feet i {
-  width: clamp(3rem, 13vw, 8rem);
-  height: clamp(0.7rem, 2vw, 1.1rem);
+  width: clamp(2.5rem, 13cqw, 8rem);
+  height: clamp(0.55rem, 2cqw, 1.1rem);
   background: var(--tm-foot);
   clip-path: polygon(8% 0, 92% 0, 100% 100%, 0 100%);
 }
 .tm-help {
-  margin: 1.6rem 0 0;
+  margin: 1.4rem auto 0;
+  max-width: 28rem;
   text-align: center;
   font-family: ui-monospace, monospace;
-  font-size: clamp(0.58rem, 1.7vw, 0.7rem);
-  letter-spacing: 0.16em;
+  font-size: clamp(0.56rem, 1.7vw, 0.7rem);
+  line-height: 1.7;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--tm-muted);
+  text-wrap: balance;
 }
 
 /* =========================================================================
@@ -512,7 +526,6 @@
 @keyframes tm-pop { to { transform: scale(1); } }
 @keyframes tm-fade { to { opacity: 1; } }
 @keyframes tm-bounce { 0%, 100% { transform: translateY(0); opacity: 0.5; } 50% { transform: translateY(-6px); opacity: 1; } }
-@keyframes tm-prog { to { transform: scaleX(1); } }
 @keyframes tm-osd {
   0% { opacity: 0; transform: translateY(-6px); }
   8% { opacity: 1; transform: none; }
@@ -548,6 +561,5 @@
   .tm *::after { animation: none !important; transition-duration: 0.01ms !important; transition-delay: 0s !important; }
   .tm-rv, .tm-boot { opacity: 1; transform: none; }
   .tm-star { transform: none; }
-  .tm-prog i { transform: scaleX(1); }
   .tm-osd, .tm-blink { display: none; }
 }
