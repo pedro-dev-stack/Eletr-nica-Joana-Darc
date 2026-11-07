@@ -58,8 +58,8 @@ export function isSeason(value: unknown): value is Season {
 }
 
 /** Mês (0–11, igual ao JS) no fuso informado. */
-function getMonthIn(timeZone: string, date: Date): number {
-  const month = new Intl.DateTimeFormat("en-US", { timeZone, month: "numeric" }).format(date)
+function getMonthIn(date: Date): number {
+  const month = new Intl.DateTimeFormat("en-US", { timeZone: STORE_TIME_ZONE, month: "numeric" }).format(date)
   return Number(month) - 1
 }
 
@@ -69,12 +69,11 @@ function getMonthIn(timeZone: string, date: Date): number {
  * Para testar sem mexer no relógio, defina no .env.local:
  *   NEXT_PUBLIC_SEASON_OVERRIDE=sao-joao   (qualquer valor de Season)
  */
-export function getCurrentSeason(
-  date: Date = new Date(),
-  timeZone: string = STORE_TIME_ZONE
-): Season {
+export function getCurrentSeason(date: Date = new Date()): Season {
+  const timeZone = STORE_TIME_ZONE
+  const tz = timeZone
   const override = process.env.NEXT_PUBLIC_SEASON_OVERRIDE
   if (isSeason(override)) return override
 
-  return MONTH_TO_SEASON[getMonthIn(timeZone, date)] ?? "default"
+  return MONTH_TO_SEASON[getMonthIn(date)] ?? "default"
 }
