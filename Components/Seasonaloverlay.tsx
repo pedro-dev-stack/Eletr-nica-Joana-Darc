@@ -50,18 +50,22 @@ const CONFETTI = 16
    SELO DE PROMOÇÃO (Black Friday, Semana do Cliente, Liquida)
 ═══════════════════════════════════════════ */
 function PromoBadge({ season }: { season: PromoSeason }) {
-  const [visible, setVisible] = useState(false)
   const copy = PROMO[season]
   const Icon = copy.icon
   const storageKey = `jd-promo-dismissed-${season}`
 
+  const [visible, setVisible] = useState(false)
+
   /* só aparece depois de montar (evita mismatch) e respeita o "fechar" da sessão */
   useEffect(() => {
-    try {
-      if (sessionStorage.getItem(storageKey) !== "1") setVisible(true)
-    } catch {
-      setVisible(true)
-    }
+    const id = setTimeout(() => {
+      try {
+        if (sessionStorage.getItem(storageKey) !== "1") setVisible(true)
+      } catch {
+        setVisible(true)
+      }
+    }, 0)
+    return () => clearTimeout(id)
   }, [storageKey])
 
   const dismiss = () => {
