@@ -1,5 +1,10 @@
 /* =========================================================================
    GARANTIA · selo 90 dias (cores vivas + brilho)
+
+   TEMAS SAZONAIS: no tema padrão valem as cores abaixo, exatamente as que
+   você já usa (azul, ciano, verde neon). Nas outras temporadas o bloco
+   `html:not([data-season="default"])` troca essas variáveis pelos tokens
+   --s-* (seasons.css). O giro dos anéis não muda.
    ========================================================================= */
 
 @keyframes spinClockwise {
@@ -17,9 +22,40 @@
   50% { opacity: 1; transform: translateX(-50%) scale(1.04); }
 }
 
+/* o brilho do 90 usa a cor da temporada (--g-num) */
 @keyframes numberPulse {
-  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 8px rgb(26 255 124 / 0.7)); }
-  50% { transform: scale(1.05); filter: drop-shadow(0 0 22px rgb(26 255 124 / 1)); }
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 8px color-mix(in oklab, var(--g-num) 70%, transparent)); }
+  50% { transform: scale(1.05); filter: drop-shadow(0 0 22px var(--g-num)); }
+}
+
+/* ---------- Cores (tema padrão) ---------- */
+.root {
+  --g-outer: #2f80ff;   /* anel externo */
+  --g-mid: #00f0ff;     /* anel do meio */
+  --g-inner: #00f0ff;   /* anel interno */
+  --g-text: #2dff8a;    /* "90 DIAS DE GARANTIA" e bolinhas */
+  --g-num: #2dff8a;     /* número 90 */
+}
+
+.glow {
+  --g-glow-core: rgb(26 255 124 / 0.22);
+  --g-glow-a: rgb(0 140 255 / 0.4);
+  --g-glow-b: rgb(80 60 255 / 0.22);
+}
+
+/* ---------- Cores nas outras temporadas ---------- */
+html:not([data-season="default"]) .root {
+  --g-outer: color-mix(in oklab, var(--s-primary) 75%, white); /* mais claro: aparece no escuro */
+  --g-mid: var(--s-accent);
+  --g-inner: var(--s-highlight);
+  --g-text: var(--s-highlight);
+  --g-num: var(--s-accent);
+}
+
+html:not([data-season="default"]) .glow {
+  --g-glow-core: color-mix(in oklab, var(--s-accent) 22%, transparent);
+  --g-glow-a: color-mix(in oklab, var(--s-primary) 40%, transparent);
+  --g-glow-b: color-mix(in oklab, var(--s-highlight) 22%, transparent);
 }
 
 /* ---------- Giro (igual ao original) ---------- */
@@ -58,51 +94,51 @@
   border-radius: 50%;
   pointer-events: none;
   background:
-    radial-gradient(circle at 50% 50%, rgb(26 255 124 / 0.22) 0%, transparent 32%),
-    radial-gradient(circle at 50% 50%, rgb(0 140 255 / 0.4) 20%, rgb(80 60 255 / 0.22) 45%, transparent 68%);
+    radial-gradient(circle at 50% 50%, var(--g-glow-core) 0%, transparent 32%),
+    radial-gradient(circle at 50% 50%, var(--g-glow-a) 20%, var(--g-glow-b) 45%, transparent 68%);
   transform: translateX(-50%);
   animation: glowBreath 5s ease-in-out infinite;
 }
 
-/* ---------- Cores vivas (CSS ganha dos atributos do SVG) ---------- */
+/* ---------- Aplicação das cores (CSS ganha dos atributos do SVG) ---------- */
 
-/* anel externo: azul elétrico + brilho */
+/* anel externo + brilho */
 .root .circleOuter path {
-  stroke: #2f80ff;
+  stroke: var(--g-outer);
   opacity: 1;
 }
 .root .circleOuter {
-  filter: drop-shadow(0 0 6px rgb(47 128 255 / 0.9));
+  filter: drop-shadow(0 0 6px color-mix(in oklab, var(--g-outer) 90%, transparent));
 }
 
-/* anel do meio: ciano neon + brilho */
+/* anel do meio + brilho */
 .root .circleMiddle path {
-  stroke: #00f0ff;
+  stroke: var(--g-mid);
 }
 .root .circleMiddle {
-  filter: drop-shadow(0 0 7px rgb(0 240 255 / 0.95));
+  filter: drop-shadow(0 0 7px color-mix(in oklab, var(--g-mid) 95%, transparent));
 }
 
-/* anel interno: violeta/magenta vivo (antes quase preto) */
+/* anel interno + brilho */
 .root .circleInner path {
-  stroke: #00f0ff;
+  stroke: var(--g-inner);
   opacity: 0.9;
 }
 .root .circleInner {
-  filter: drop-shadow(0 0 8px rgb(0 240 255 / 0.9));
+  filter: drop-shadow(0 0 8px color-mix(in oklab, var(--g-inner) 90%, transparent));
 }
 
-/* texto "90 DIAS DE GARANTIA" e bolinhas: verde neon + brilho */
+/* texto "90 DIAS DE GARANTIA" e bolinhas + brilho */
 .root .textElements path {
-  fill: #2dff8a;
+  fill: var(--g-text);
 }
 .root .textElements {
-  filter: drop-shadow(0 0 5px rgb(45 255 138 / 0.9));
+  filter: drop-shadow(0 0 5px color-mix(in oklab, var(--g-text) 90%, transparent));
 }
 
-/* número 90: verde neon com pulso */
+/* número 90 com pulso */
 .root g[mask] > path {
-  fill: #2dff8a;
+  fill: var(--g-num);
   transform-box: fill-box;
   transform-origin: center;
   animation: numberPulse 2.8s ease-in-out infinite;

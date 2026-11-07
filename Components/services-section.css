@@ -4,16 +4,21 @@
    (TV com pôr do sol / micro-ondas aquecendo), borda que segue o mouse e
    efeito de pilha no scroll (scale + escurecimento, sem blur = sem travar).
    Prefixo .sv- (sem conflito). Só transform/opacity animam (GPU).
+
+   TEMAS SAZONAIS: as cores vêm dos tokens --s-* (seasons.css). Os valores
+   depois da vírgula são o tema padrão. Nos cards de VENDA aparece uma
+   etiqueta da temporada (--s-promo-tag), que não existe no tema padrão.
    ========================================================================= */
 
 .sv {
-  --sv-blue: oklch(0.62 0.22 258);
-  --sv-indigo: oklch(0.5 0.22 275);
-  --sv-cyan: oklch(0.84 0.14 200);
-  --sv-gold: oklch(0.88 0.18 95);
-  --sv-gold-d: oklch(0.76 0.17 75);
-  --sv-green: oklch(0.8 0.2 155);
-  --sv-ink: oklch(0.08 0.025 255);
+  --sv-blue: var(--s-primary, oklch(0.62 0.22 258));
+  --sv-indigo: var(--s-primary-deep, oklch(0.5 0.22 275));
+  --sv-cyan: var(--s-highlight, oklch(0.84 0.14 200));
+  --sv-gold: var(--s-accent, oklch(0.88 0.18 95));
+  --sv-gold-d: var(--s-accent-deep, oklch(0.76 0.17 75));
+  --sv-green: var(--s-ok, oklch(0.8 0.2 155));
+  --sv-ink: var(--s-ink, oklch(0.08 0.025 255));
+  --sv-surface: var(--s-surface, oklch(0.16 0.045 258));
   --sv-line: oklch(1 0 0 / 0.09);
   --sv-text: oklch(0.98 0 0);
   --sv-muted: oklch(0.72 0.02 255);
@@ -52,7 +57,7 @@
   top: 4%;
   width: 60vmax;
   height: 60vmax;
-  background: radial-gradient(circle, oklch(0.55 0.22 262 / 0.22), transparent 62%);
+  background: radial-gradient(circle, color-mix(in oklab, var(--sv-blue) 22%, transparent), transparent 62%);
   animation: sv-drift 24s ease-in-out infinite alternate;
 }
 .sv-bg i:nth-child(3) {
@@ -60,7 +65,7 @@
   top: 52%;
   width: 62vmax;
   height: 62vmax;
-  background: radial-gradient(circle, oklch(0.88 0.18 95 / 0.1), transparent 62%);
+  background: radial-gradient(circle, color-mix(in oklab, var(--sv-gold) 10%, transparent), transparent 62%);
   animation: sv-drift 30s ease-in-out infinite alternate-reverse;
 }
 
@@ -96,7 +101,7 @@
   padding: 0.4rem 1rem 0.4rem 0.45rem;
   border-radius: 999px;
   border: 1px solid var(--sv-line);
-  background: oklch(0.16 0.04 258 / 0.55);
+  background: color-mix(in oklab, var(--sv-surface) 55%, transparent);
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.2em;
@@ -162,7 +167,7 @@
 .sv-meta i {
   flex: 1;
   height: 1px;
-  background: linear-gradient(90deg, oklch(0.62 0.22 258 / 0.7), var(--sv-line));
+  background: linear-gradient(90deg, color-mix(in oklab, var(--sv-blue) 70%, transparent), var(--sv-line));
   transform-origin: left;
   transform: scaleX(0);
 }
@@ -229,7 +234,7 @@
   border: 1px solid var(--sv-line);
   background:
     radial-gradient(70% 80% at 100% 0%, color-mix(in oklab, var(--acc) 12%, transparent), transparent 70%),
-    linear-gradient(165deg, oklch(0.16 0.045 258), oklch(0.105 0.03 255));
+    linear-gradient(165deg, var(--sv-surface), color-mix(in oklab, var(--sv-surface) 55%, var(--sv-ink)));
   box-shadow: 0 40px 80px -40px oklch(0 0 0 / 0.9), inset 0 1px 0 oklch(1 0 0 / 0.06);
   opacity: 0;
 }
@@ -409,7 +414,7 @@
   border-bottom: 1px solid var(--sv-line);
   background:
     radial-gradient(60% 60% at 50% 50%, color-mix(in oklab, var(--acc) 22%, transparent), transparent 70%),
-    oklch(0.09 0.03 255 / 0.6);
+    color-mix(in oklab, var(--sv-ink) 60%, transparent);
 }
 @media (min-width: 900px) {
   .sv-stage { order: 2; min-height: 0; padding: 2rem; border-bottom: 0; border-left: 1px solid var(--sv-line); }
@@ -425,6 +430,27 @@
   -webkit-mask-image: radial-gradient(70% 70% at 50% 50%, #000, transparent);
   mask-image: radial-gradient(70% 70% at 50% 50%, #000, transparent);
 }
+
+/* etiqueta da temporada nos cards de VENDA (texto vem de --s-promo-tag).
+   No tema padrão a variável não existe => content: none => nada aparece. */
+.sv-tone--sale .sv-stage::after {
+  content: var(--s-promo-tag, none);
+  position: absolute;
+  left: 1rem;
+  bottom: 1rem;
+  z-index: 3;
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  background: var(--sv-gold);
+  color: var(--sv-ink);
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  box-shadow: 0 10px 24px -10px color-mix(in oklab, var(--sv-gold) 80%, transparent);
+}
+
 .sv-ring {
   position: absolute;
   left: 50%;
@@ -477,7 +503,7 @@
   padding: 0.6rem 0.9rem;
   border-radius: 1rem;
   border: 1px solid oklch(1 0 0 / 0.14);
-  background: oklch(0.13 0.035 255 / 0.78);
+  background: color-mix(in oklab, var(--sv-surface) 78%, transparent);
   -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
   box-shadow: 0 20px 40px -16px oklch(0 0 0 / 0.7);
@@ -528,8 +554,8 @@
    ILUSTRAÇÕES (SVG)
    ========================================================================= */
 .sv-art { display: block; width: 100%; height: auto; overflow: visible; filter: drop-shadow(0 26px 30px oklch(0 0 0 / 0.55)); }
-.sv-art .body { fill: oklch(0.11 0.03 255); stroke: var(--acc); stroke-opacity: 0.55; stroke-width: 1.5; }
-.sv-art .stand { fill: oklch(0.16 0.04 258); stroke: var(--acc); stroke-opacity: 0.35; stroke-width: 1; }
+.sv-art .body { fill: color-mix(in oklab, var(--sv-surface) 75%, var(--sv-ink)); stroke: var(--acc); stroke-opacity: 0.55; stroke-width: 1.5; }
+.sv-art .stand { fill: var(--sv-surface); stroke: var(--acc); stroke-opacity: 0.35; stroke-width: 1; }
 .sv-art .led { fill: var(--acc); filter: drop-shadow(0 0 5px var(--acc)); animation: sv-led 2s ease-in-out infinite; }
 .sv-art .shine { fill: oklch(1 0 0 / 0.07); }
 
@@ -547,7 +573,7 @@
 .sv-art .cloud:nth-of-type(2) { animation-duration: 20s; animation-delay: -8s; }
 
 /* Micro-ondas */
-.sv-art .door { fill: oklch(0.075 0.025 255); stroke: oklch(1 0 0 / 0.1); }
+.sv-art .door { fill: var(--sv-ink); stroke: oklch(1 0 0 / 0.1); }
 .sv-art .win { stroke: var(--acc); stroke-opacity: 0.3; }
 .sv-art .glow { animation: sv-glow 2.4s ease-in-out infinite alternate; }
 .sv-art .plate {
@@ -568,8 +594,8 @@
 }
 .sv-art .steam path:nth-child(2) { animation-delay: 0.9s; }
 .sv-art .steam path:nth-child(3) { animation-delay: 1.8s; }
-.sv-art .panel { fill: oklch(0.15 0.04 258); stroke: oklch(1 0 0 / 0.1); }
-.sv-art .disp { fill: oklch(0.07 0.03 220); stroke: var(--sv-cyan); stroke-opacity: 0.5; }
+.sv-art .panel { fill: var(--sv-surface); stroke: oklch(1 0 0 / 0.1); }
+.sv-art .disp { fill: var(--sv-ink); stroke: var(--sv-cyan); stroke-opacity: 0.5; }
 .sv-art .digits {
   font-family: ui-monospace, monospace;
   font-size: 14px;

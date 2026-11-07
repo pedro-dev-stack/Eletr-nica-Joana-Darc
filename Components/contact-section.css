@@ -20,6 +20,7 @@
   --ct-muted: oklch(0.74 0.02 255);
   --ct-ease: cubic-bezier(0.22, 1, 0.36, 1);
   --ct-spring: cubic-bezier(0.3, 1.45, 0.5, 1);
+  --ct-green-hover: oklch(0.84 0.19 155);
 
   position: relative;
   isolation: isolate;
@@ -30,6 +31,22 @@
 }
 @media (min-width: 640px) { .ct { padding-left: 1.5rem; padding-right: 1.5rem; } }
 @media (min-width: 1024px) { .ct { padding-left: 2rem; padding-right: 2rem; } }
+
+/* ---------- Temas sazonais ----------
+   No tema padrão valem EXATAMENTE as cores acima. Nas outras temporadas
+   (tokens --s-* do seasons.css) fundo, painéis, campos e realces seguem a
+   estação. O vermelho de "fechado/erro" não muda (é semântico). */
+html:not([data-season="default"]) .ct {
+  --ct-blue: var(--s-primary);
+  --ct-blue-strong: var(--s-primary-deep);
+  --ct-cyan: var(--s-highlight);
+  --ct-gold: var(--s-accent);
+  --ct-green: var(--s-ok);
+  --ct-green-hover: color-mix(in oklab, var(--s-ok) 85%, white);
+  --ct-bg: color-mix(in oklab, var(--s-ink) 33%, var(--s-surface));
+  --ct-surface: color-mix(in oklab, var(--s-surface) 97.7%, white);
+  --ct-field: color-mix(in oklab, var(--s-ink) 17%, var(--s-surface));
+}
 
 .ct-wrap { position: relative; max-width: 80rem; margin: 0 auto; }
 .ct-grid {
@@ -128,7 +145,7 @@
 .ct-btn--blue { color: #fff; background: var(--ct-blue-strong); }
 @media (hover: hover) {
   .ct-btn:hover { transform: translateY(-2px); }
-  .ct-btn--wa:hover { background: oklch(0.84 0.19 155); }
+  .ct-btn--wa:hover { background: var(--ct-green-hover); }
   .ct-btn--blue:hover { background: var(--ct-blue); }
   .ct-btn--ghost:hover { border-color: var(--ct-cyan); }
 }
@@ -300,6 +317,19 @@
   text-transform: uppercase;
   color: var(--ct-cyan);
 }
+/* etiqueta da temporada no formulário (texto vem de --s-promo-tag).
+   No tema padrão a variável não existe => content: none => nada aparece. */
+.ct-form-tag::after {
+  content: var(--s-promo-tag, none);
+  margin-left: auto;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  background: var(--ct-gold);
+  color: oklch(0.14 0.03 255);
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  white-space: nowrap;
+}
 .ct-form-head h3 {
   margin: 0 0 1rem;
   font-family: var(--font-serif, serif);
@@ -463,7 +493,7 @@ textarea.ct-input { min-height: 7.5rem; resize: vertical; line-height: 1.55; }
   transition: transform 0.3s var(--ct-spring), background-color 0.3s;
 }
 .ct-submit svg { width: 1.35rem; height: 1.35rem; flex: none; }
-@media (hover: hover) { .ct-submit:hover { transform: translateY(-2px); background: oklch(0.84 0.19 155); } }
+@media (hover: hover) { .ct-submit:hover { transform: translateY(-2px); background: var(--ct-green-hover); } }
 .ct-submit:active { transform: scale(0.97); }
 .ct-note { margin: 0.2rem 0 0; text-align: center; font-size: 0.74rem; color: var(--ct-muted); }
 

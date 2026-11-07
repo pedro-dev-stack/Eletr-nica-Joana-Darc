@@ -5,15 +5,20 @@
    - Sem grid de fundo, sem scanner/mira, sem gradientes, sem blur/glow.
    - Só transform/opacity animam em loop (GPU). will-change só enquanto visível.
    Prefixo .ex- (sem conflito).
+
+   TEMAS SAZONAIS: as cores vêm dos tokens --s-* (seasons.css). Os valores
+   depois da vírgula são o tema padrão. O fundo e os painéis são derivados
+   de --s-ink / --s-surface para manter o tom exato do padrão (ink ≈ 0.11,
+   painel ≈ 0.15) e ainda acompanhar cada temporada.
    ========================================================================= */
 
 .ex {
-  --ex-blue: oklch(0.62 0.22 258);
+  --ex-blue: var(--s-primary, oklch(0.62 0.22 258));
   --ex-violet: oklch(0.68 0.2 300);
-  --ex-gold: oklch(0.88 0.18 95);
-  --ex-green: oklch(0.8 0.2 155);
-  --ex-ink: oklch(0.11 0.025 256);
-  --ex-panel: oklch(0.15 0.03 258);
+  --ex-gold: var(--s-accent, oklch(0.88 0.18 95));
+  --ex-green: var(--s-ok, oklch(0.8 0.2 155));
+  --ex-ink: color-mix(in oklab, var(--s-ink, oklch(0.08 0.025 255)) 50%, var(--s-surface, oklch(0.14 0.035 255)));
+  --ex-panel: color-mix(in oklab, var(--s-surface, oklch(0.14 0.035 255)) 99%, white);
   --ex-line: oklch(1 0 0 / 0.1);
   --ex-text: oklch(0.98 0 0);
   --ex-muted: oklch(0.72 0.02 255);
@@ -26,6 +31,14 @@
   background: var(--ex-ink);
   color: var(--ex-text);
   border-block: 1px solid var(--ex-line);
+}
+
+/* Fora do tema padrão: a 3ª cor do acordeão passa a ser o realce da temporada
+   (no padrão continua o violeta original). */
+html:not([data-season="default"]) .ex { --ex-violet: var(--s-highlight); }
+/* realce costuma ser claro: ícone escuro para manter o contraste */
+html:not([data-season="default"]) .ex-row:nth-child(3)[data-active="true"] .ex-ico {
+  color: oklch(0.12 0.03 255);
 }
 
 .ex-wrap {
@@ -80,7 +93,7 @@
   transform: translate3d(calc(var(--px) * -14px - 0.7rem), calc(var(--py) * -10px - 0.7rem), 0);
 }
 .ex-frame--b {
-  border-color: oklch(0.62 0.22 258 / 0.45);
+  border-color: color-mix(in oklab, var(--ex-blue) 45%, transparent);
   transform: translate3d(calc(var(--px) * 10px + 0.5rem), calc(var(--py) * 8px + 0.5rem), 0);
 }
 
@@ -119,7 +132,7 @@
   padding: 0.85rem 1.1rem;
   border-radius: 1rem;
   border: 1px solid var(--ex-line);
-  background: oklch(0.11 0.025 256 / 0.92);
+  background: color-mix(in oklab, var(--ex-ink) 92%, transparent);
 }
 .ex-cap b {
   display: block;
@@ -487,12 +500,12 @@
 @media (hover: hover) {
   .ex-diff__item:hover {
     transform: translate3d(0, -3px, 0);
-    border-color: oklch(0.8 0.2 155 / 0.55);
+    border-color: color-mix(in oklab, var(--ex-green) 55%, transparent);
   }
 }
 .ex-check { width: 1.35rem; height: 1.35rem; flex: none; overflow: visible; }
 .ex-check circle {
-  fill: oklch(0.8 0.2 155 / 0.12);
+  fill: color-mix(in oklab, var(--ex-green) 12%, transparent);
   stroke: var(--ex-green);
   stroke-width: 1.6;
   stroke-dasharray: 63;

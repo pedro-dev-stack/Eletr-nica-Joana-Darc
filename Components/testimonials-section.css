@@ -34,6 +34,7 @@
   --tm-spring: cubic-bezier(0.3, 1.45, 0.5, 1);
   --tm-r: clamp(0.55rem, 1.6vw, 1rem);
   --tm-bz: clamp(0.35rem, 1.1vw, 0.75rem);
+  --tm-glow: oklch(0.62 0.22 258);
 
   position: relative;
   overflow: hidden;
@@ -44,6 +45,21 @@
 }
 @media (min-width: 640px) { .tm { padding-left: 1.5rem; padding-right: 1.5rem; } }
 @media (min-width: 1024px) { .tm { padding-left: 2rem; padding-right: 2rem; } }
+
+/* ---------- Temas sazonais ----------
+   No tema padrão valem EXATAMENTE as cores acima. Nas outras temporadas
+   (tokens --s-* do seasons.css) só a "parte colorida" muda: fundo, tela,
+   realces, estrelas, OSD e brilhos. O plástico da TV (corpo, botões, pés)
+   e o vermelho de "standby" ficam iguais, como um aparelho de verdade. */
+html:not([data-season="default"]) .tm {
+  --tm-bg: color-mix(in oklab, var(--s-ink) 67%, var(--s-surface));
+  --tm-screen: color-mix(in oklab, var(--s-ink) 25%, var(--s-surface));
+  --tm-card: color-mix(in oklab, var(--s-surface) 96.5%, white);
+  --tm-accent: var(--s-highlight);
+  --tm-gold: var(--s-accent);
+  --tm-green: var(--s-ok);
+  --tm-glow: var(--s-glow);
+}
 
 .tm-wrap { position: relative; max-width: 80rem; margin: 0 auto; }
 
@@ -177,7 +193,7 @@
 .tm-tv[data-phase="on"] .tm-antenna__rod::after,
 .tm-tv[data-phase="boot"] .tm-antenna__rod::after {
   background: var(--tm-green);
-  box-shadow: 0 0 10px oklch(0.82 0.2 150 / 0.7);
+  box-shadow: 0 0 10px color-mix(in oklab, var(--tm-green) 70%, transparent);
 }
 /* base: cúpula achatada que "nasce" do topo da TV */
 .tm-antenna__base {
@@ -205,7 +221,7 @@
 }
 .tm-tv[data-phase="on"] .tm-body,
 .tm-tv[data-phase="boot"] .tm-body {
-  box-shadow: 0 0 0 1px oklch(0 0 0), 0 40px 80px -40px oklch(0.62 0.22 258 / 0.55);
+  box-shadow: 0 0 0 1px oklch(0 0 0), 0 40px 80px -40px color-mix(in oklab, var(--tm-glow) 55%, transparent);
 }
 
 /* vidro da tela: sempre proporção de TV; é o container "screen" (cqw) */
@@ -348,7 +364,7 @@
   font-size: clamp(3rem, 11cqw, 8rem);
   font-style: italic;
   line-height: 1;
-  color: oklch(0.82 0.13 215 / 0.18);
+  color: color-mix(in oklab, var(--tm-accent) 18%, transparent);
   pointer-events: none;
 }
 .tm-stars { position: relative; display: flex; gap: 0.18rem; margin-bottom: clamp(0.4rem, 1.7cqw, 1rem); }
@@ -527,7 +543,7 @@
 .tm-tv[data-phase="boot"] .tm-power {
   color: var(--tm-green);
   border-color: var(--tm-green);
-  box-shadow: 0 2px 0 oklch(0 0 0 / 0.8), 0 0 14px oklch(0.82 0.2 150 / 0.55), inset 0 1px 0 oklch(1 0 0 / 0.1);
+  box-shadow: 0 2px 0 oklch(0 0 0 / 0.8), 0 0 14px color-mix(in oklab, var(--tm-green) 55%, transparent), inset 0 1px 0 oklch(1 0 0 / 0.1);
 }
 /* anel que chama atenção quando a TV está desligada */
 .tm-tv[data-phase="off"] .tm-power::before {

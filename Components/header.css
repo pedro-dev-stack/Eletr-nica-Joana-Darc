@@ -3,18 +3,28 @@
    Arquivo autônomo: paleta, efeitos e animações do Header vivem aqui.
    Prefixo .jd- evita conflito com Tailwind / outros componentes.
    Só anima transform/opacity/clip-path (GPU) para nunca travar.
+
+   TEMAS SAZONAIS: as cores vêm dos tokens --s-* (seasons.css). Os valores
+   depois da vírgula são o tema padrão, então o header continua idêntico se
+   o seasons.css não estiver carregado.
    ========================================================================= */
 
-/* ---------- Tokens (paleta da logo: azul royal, ciano, ouro) ---------- */
+/* ---------- Tokens ---------- */
 .jd-header,
 .jd-drawer {
-  --jd-blue: oklch(0.62 0.22 258);
-  --jd-indigo: oklch(0.5 0.22 275);
-  --jd-cyan: oklch(0.84 0.14 200);
-  --jd-gold: oklch(0.88 0.18 95);
-  --jd-green: oklch(0.8 0.22 150);
-  --jd-ink: oklch(0.08 0.025 255);
-  --jd-glass: oklch(0.12 0.035 255 / 0.62);
+  --jd-blue: var(--s-primary, oklch(0.62 0.22 258));
+  --jd-indigo: var(--s-primary-deep, oklch(0.5 0.22 275));
+  --jd-cyan: var(--s-highlight, oklch(0.84 0.14 200));
+  --jd-gold: var(--s-accent, oklch(0.88 0.18 95));
+  --jd-green: var(--s-ok, oklch(0.8 0.22 150));
+  --jd-ink: var(--s-ink, oklch(0.08 0.025 255));
+  --jd-surface: var(--s-surface, oklch(0.14 0.035 255));
+  --jd-cta-from: var(--s-cta-from, var(--jd-blue));
+  --jd-cta-to: var(--s-cta-to, var(--jd-indigo));
+  --jd-on-cta: var(--s-on-cta, #fff);
+  --jd-glow: var(--s-glow, var(--jd-blue));
+
+  --jd-glass: color-mix(in oklab, var(--jd-surface) 62%, transparent);
   --jd-line: oklch(1 0 0 / 0.1);
   --jd-text: oklch(0.98 0 0);
   --jd-muted: oklch(0.74 0.02 255);
@@ -64,12 +74,12 @@ html {
   inset: 0;
   opacity: 0;
   background:
-    radial-gradient(60% 120% at 15% 0%, oklch(0.62 0.22 258 / 0.18), transparent 70%),
-    radial-gradient(50% 120% at 90% 0%, oklch(0.84 0.14 200 / 0.12), transparent 70%),
+    radial-gradient(60% 120% at 15% 0%, color-mix(in oklab, var(--jd-blue) 18%, transparent), transparent 70%),
+    radial-gradient(50% 120% at 90% 0%, color-mix(in oklab, var(--jd-cyan) 12%, transparent), transparent 70%),
     var(--jd-glass);
   -webkit-backdrop-filter: blur(18px) saturate(1.5);
   backdrop-filter: blur(18px) saturate(1.5);
-  box-shadow: 0 18px 50px -20px oklch(0.62 0.22 258 / 0.45);
+  box-shadow: 0 18px 50px -20px color-mix(in oklab, var(--jd-glow) 45%, transparent);
   transition: opacity 0.4s var(--jd-ease);
   pointer-events: none;
 }
@@ -96,7 +106,12 @@ html {
   grid-template-rows: 1fr;
   transition: grid-template-rows 0.4s var(--jd-ease), opacity 0.3s;
   border-bottom: 1px solid var(--jd-line);
-  background: linear-gradient(90deg, oklch(0.2 0.08 258 / 0.7), oklch(0.12 0.04 255 / 0.5), oklch(0.2 0.08 258 / 0.7));
+  background: linear-gradient(
+    90deg,
+    color-mix(in oklab, var(--jd-blue) 22%, var(--jd-ink)),
+    color-mix(in oklab, var(--jd-surface) 80%, var(--jd-ink)),
+    color-mix(in oklab, var(--jd-blue) 22%, var(--jd-ink))
+  );
 }
 @media (min-width: 768px) {
   .jd-strip { display: grid; }
@@ -184,7 +199,7 @@ html {
   height: 3.5rem;
   padding: 2px;
   border-radius: 999px;
-  box-shadow: 0 0 24px -4px oklch(0.62 0.22 258 / 0.7);
+  box-shadow: 0 0 24px -4px color-mix(in oklab, var(--jd-glow) 70%, transparent);
   transition: width 0.35s var(--jd-ease), height 0.35s var(--jd-ease), box-shadow 0.4s, transform 0.4s var(--jd-spring);
 }
 .jd-header[data-scrolled="true"] .jd-logo__ring {
@@ -201,7 +216,7 @@ html {
 }
 .jd-logo:hover .jd-logo__ring {
   transform: scale(1.08) rotate(-4deg);
-  box-shadow: 0 0 34px 0 oklch(0.88 0.18 95 / 0.55);
+  box-shadow: 0 0 34px 0 color-mix(in oklab, var(--jd-gold) 55%, transparent);
 }
 .jd-logo:hover .jd-logo__ring::before { animation-duration: 1.6s; }
 .jd-logo__ring img {
@@ -254,7 +269,7 @@ html {
   padding: 0.3rem;
   border-radius: 999px;
   border: 1px solid var(--jd-line);
-  background: oklch(0.14 0.03 255 / 0.55);
+  background: color-mix(in oklab, var(--jd-surface) 55%, transparent);
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
   overflow: hidden;
@@ -267,7 +282,7 @@ html {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(140px circle at var(--mx) var(--my), oklch(0.84 0.14 200 / 0.22), transparent 70%);
+  background: radial-gradient(140px circle at var(--mx) var(--my), color-mix(in oklab, var(--jd-cyan) 22%, transparent), transparent 70%);
   opacity: 0;
   transition: opacity 0.3s;
   pointer-events: none;
@@ -284,8 +299,12 @@ html {
   opacity: var(--ind-o);
   transform: translateX(var(--ind-x));
   border-radius: 999px;
-  background: linear-gradient(135deg, oklch(0.62 0.22 258 / 0.55), oklch(0.5 0.22 275 / 0.45));
-  box-shadow: inset 0 0 0 1px oklch(1 0 0 / 0.14), 0 6px 18px -6px oklch(0.62 0.22 258 / 0.8);
+  background: linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--jd-blue) 55%, transparent),
+    color-mix(in oklab, var(--jd-indigo) 45%, transparent)
+  );
+  box-shadow: inset 0 0 0 1px oklch(1 0 0 / 0.14), 0 6px 18px -6px color-mix(in oklab, var(--jd-glow) 80%, transparent);
   transition: transform 0.45s var(--jd-spring), width 0.45s var(--jd-spring), opacity 0.3s;
   pointer-events: none;
 }
@@ -344,7 +363,7 @@ html {
   padding: 0 0.75rem;
   border-radius: 999px;
   border: 1px solid var(--jd-line);
-  background: oklch(0.16 0.03 255 / 0.6);
+  background: color-mix(in oklab, var(--jd-surface) 60%, transparent);
   color: var(--jd-text);
   font-size: 0.8rem;
   font-weight: 600;
@@ -352,9 +371,13 @@ html {
   transition: transform 0.3s var(--jd-spring), border-color 0.25s, background 0.25s;
 }
 .jd-chip svg { width: 1.05rem; height: 1.05rem; }
-.jd-chip:hover { transform: translateY(-2px); border-color: oklch(0.84 0.14 200 / 0.6); background: oklch(0.2 0.05 255 / 0.8); }
+.jd-chip:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in oklab, var(--jd-cyan) 60%, transparent);
+  background: color-mix(in oklab, var(--jd-surface) 80%, var(--jd-blue));
+}
 .jd-chip--wa { color: var(--jd-green); }
-.jd-chip--wa:hover { border-color: oklch(0.8 0.22 150 / 0.7); }
+.jd-chip--wa:hover { border-color: color-mix(in oklab, var(--jd-green) 70%, transparent); }
 .jd-chip--wa::after {
   content: "";
   position: absolute;
@@ -385,19 +408,19 @@ html {
   font-size: 0.875rem;
   font-weight: 700;
   letter-spacing: 0.01em;
-  color: #fff;
+  color: var(--jd-on-cta);
   text-decoration: none;
-  background: linear-gradient(135deg, var(--jd-blue), var(--jd-indigo));
+  background: linear-gradient(135deg, var(--jd-cta-from), var(--jd-cta-to));
   box-shadow:
     inset 0 0 0 1px oklch(1 0 0 / 0.2),
-    0 10px 30px -8px oklch(0.62 0.22 258 / 0.75);
+    0 10px 30px -8px color-mix(in oklab, var(--jd-glow) 75%, transparent);
   transform: translate(var(--tx), var(--ty));
   transition: transform 0.25s var(--jd-ease), box-shadow 0.3s;
 }
 .jd-cta:hover {
   box-shadow:
     inset 0 0 0 1px oklch(1 0 0 / 0.3),
-    0 14px 40px -6px oklch(0.62 0.22 258 / 0.95);
+    0 14px 40px -6px color-mix(in oklab, var(--jd-glow) 95%, transparent);
 }
 .jd-cta:active { transform: translate(var(--tx), var(--ty)) scale(0.96); }
 /* brilho que varre */
@@ -451,13 +474,13 @@ html {
   height: 2.9rem;
   border-radius: 999px;
   border: 1px solid var(--jd-line);
-  background: oklch(0.16 0.03 255 / 0.65);
+  background: color-mix(in oklab, var(--jd-surface) 65%, transparent);
   color: var(--jd-text);
   cursor: pointer;
   transition: transform 0.25s var(--jd-spring), border-color 0.25s;
 }
 .jd-burger:active { transform: scale(0.9); }
-.jd-burger[aria-expanded="true"] { border-color: oklch(0.88 0.18 95 / 0.6); }
+.jd-burger[aria-expanded="true"] { border-color: color-mix(in oklab, var(--jd-gold) 60%, transparent); }
 @media (min-width: 1024px) {
   .jd-burger { display: none; }
 }
@@ -491,8 +514,8 @@ html {
   overflow-y: auto;
   color: var(--jd-text);
   background:
-    radial-gradient(80% 50% at 100% 0%, oklch(0.4 0.2 265 / 0.55), transparent 70%),
-    radial-gradient(70% 50% at 0% 100%, oklch(0.55 0.15 200 / 0.3), transparent 70%),
+    radial-gradient(80% 50% at 100% 0%, color-mix(in oklab, var(--jd-indigo) 55%, transparent), transparent 70%),
+    radial-gradient(70% 50% at 0% 100%, color-mix(in oklab, var(--jd-cyan) 30%, transparent), transparent 70%),
     var(--jd-ink);
   clip-path: circle(0px at calc(100% - 2.4rem) 2.6rem);
   visibility: hidden;
@@ -526,7 +549,7 @@ html {
   width: 16rem;
   height: 16rem;
   border-radius: 999px;
-  background: radial-gradient(circle, oklch(0.88 0.18 95 / 0.22), transparent 65%);
+  background: radial-gradient(circle, color-mix(in oklab, var(--jd-gold) 22%, transparent), transparent 65%);
   filter: blur(10px);
   animation: jd-float 7s ease-in-out infinite;
   pointer-events: none;
@@ -612,7 +635,7 @@ html {
   padding: 0.9rem 1rem;
   border-radius: 1rem;
   border: 1px solid var(--jd-line);
-  background: oklch(0.16 0.03 255 / 0.7);
+  background: color-mix(in oklab, var(--jd-surface) 70%, transparent);
   text-decoration: none;
   color: var(--jd-text);
   transition: transform 0.25s var(--jd-spring), border-color 0.25s;
@@ -620,7 +643,7 @@ html {
 .jd-card:active { transform: scale(0.96); }
 .jd-card span { font-size: 0.65rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--jd-muted); }
 .jd-card b { font-size: 1.05rem; }
-.jd-card--wa { border-color: oklch(0.8 0.22 150 / 0.45); }
+.jd-card--wa { border-color: color-mix(in oklab, var(--jd-green) 45%, transparent); }
 .jd-card--wa span { color: var(--jd-green); }
 .jd-drawer .jd-cta { justify-content: center; padding: 1rem 1.35rem; font-size: 1rem; }
 

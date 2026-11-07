@@ -1,0 +1,317 @@
+/* =========================================================================
+   SEASONAL OVERLAY · Eletrônica Joana Dark
+   Detalhes leves por temporada. Tudo usa os tokens --s-* (seasons.css).
+   Só anima transform/opacity. Prefixo .so- (sem conflito).
+   ========================================================================= */
+
+/* =========================================================================
+   SELO DE PROMOÇÃO (Black Friday · Semana do Cliente · Liquida de Ano Novo)
+   ========================================================================= */
+.so-promo {
+  --so-accent: var(--s-accent, oklch(0.92 0.2 100));
+  --so-ink: var(--s-ink, oklch(0.055 0.012 285));
+  --so-surface: var(--s-surface, oklch(0.105 0.02 285));
+
+  position: fixed;
+  left: max(0.75rem, env(safe-area-inset-left));
+  bottom: max(0.75rem, env(safe-area-inset-bottom));
+  z-index: 40;
+  display: flex;
+  align-items: stretch;
+  width: min(21rem, calc(100vw - 1.5rem));
+  border-radius: 1rem;
+  border: 1px solid color-mix(in oklab, var(--so-accent) 55%, transparent);
+  background: var(--so-surface);
+  box-shadow:
+    0 0 0 1px oklch(0 0 0),
+    0 14px 40px -12px color-mix(in oklab, var(--so-accent) 45%, transparent);
+  animation: so-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.6s both;
+}
+/* pulso de energia na borda */
+.so-promo::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  border: 1px solid var(--so-accent);
+  opacity: 0;
+  pointer-events: none;
+  animation: so-pulse 3.2s ease-out 1.8s infinite;
+}
+.so-promo__main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0.4rem 0.65rem 0.65rem;
+  color: oklch(0.98 0 0);
+  text-decoration: none;
+}
+.so-promo__tag {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.4rem 0.65rem;
+  border-radius: 0.65rem;
+  background: var(--so-accent);
+  color: var(--so-ink);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.so-promo__tag svg { width: 0.8rem; height: 0.8rem; }
+.so-promo__txt { min-width: 0; line-height: 1.2; }
+.so-promo__txt b { display: block; font-size: 0.82rem; font-weight: 700; }
+.so-promo__txt small {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.66rem;
+  color: oklch(0.98 0 0 / 0.62);
+}
+.so-promo__close {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2.75rem; /* alvo de toque confortável */
+  border: 0;
+  border-left: 1px solid oklch(1 0 0 / 0.08);
+  border-radius: 0 1rem 1rem 0;
+  background: transparent;
+  color: oklch(0.98 0 0 / 0.6);
+  cursor: pointer;
+  transition: color 0.2s, background-color 0.2s;
+}
+.so-promo__close svg { width: 1rem; height: 1rem; }
+@media (hover: hover) {
+  .so-promo__close:hover { color: oklch(0.98 0 0); background: oklch(1 0 0 / 0.06); }
+}
+.so-promo__main:focus-visible,
+.so-promo__close:focus-visible { outline: 2px solid var(--so-accent); outline-offset: -2px; }
+
+/* celular pequeno: compacta o texto, mantém a etiqueta */
+@media (max-width: 380px) {
+  .so-promo__txt small { display: none; }
+}
+
+/* =========================================================================
+   CONFETE (Semana do Cliente · Liquida de Ano Novo)
+   ========================================================================= */
+.so-confetti {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  overflow: hidden;
+  pointer-events: none;
+}
+.so-confetti i {
+  --c: var(--s-accent, oklch(0.88 0.16 95));
+  position: absolute;
+  top: -4vh;
+  left: var(--x);
+  width: 0.4rem;
+  height: 0.65rem;
+  border-radius: 1px;
+  background: var(--c);
+  opacity: 0;
+  animation: so-confetti var(--dur) linear infinite;
+  animation-delay: var(--dl);
+}
+.so-confetti i:nth-child(4n + 1) { --c: var(--s-primary, oklch(0.62 0.24 350)); }
+.so-confetti i:nth-child(4n + 2) { --c: var(--s-highlight, oklch(0.82 0.13 190)); }
+.so-confetti i:nth-child(4n + 3) { --c: var(--s-accent, oklch(0.88 0.16 95)); }
+.so-confetti i:nth-child(4n + 4) { --c: var(--s-ok, oklch(0.8 0.2 155)); }
+@media (max-width: 639px) {
+  .so-confetti i:nth-child(n + 9) { display: none; }
+}
+
+/* =========================================================================
+   NATAL · luzes LED + neve
+   ========================================================================= */
+.so-xmas { pointer-events: none; }
+
+/* fio de luzes no topo da tela (abaixo do header: z 40 < 50) */
+.so-lights {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  display: flex;
+  justify-content: space-around;
+  padding: 0 0.5rem;
+  height: 1.7rem;
+}
+.so-lights::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 2px;
+  background: oklch(0.32 0.03 150);
+}
+.so-lights i {
+  --c: var(--s-primary, oklch(0.52 0.22 22));
+  position: relative;
+  display: block;
+  width: 0.5rem;
+  height: 0.7rem;
+  margin-top: 0.15rem;
+  border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%;
+  background: var(--c);
+  box-shadow: 0 0 10px 2px color-mix(in oklab, var(--c) 65%, transparent);
+  animation: so-twinkle 2.6s ease-in-out infinite;
+  animation-delay: calc(var(--i) * -0.37s);
+}
+/* soquete da lâmpada */
+.so-lights i::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -0.2rem;
+  width: 0.28rem;
+  height: 0.22rem;
+  margin-left: -0.14rem;
+  border-radius: 1px;
+  background: oklch(0.3 0.03 150);
+}
+.so-lights i:nth-child(even) { transform: translateY(0.18rem); }
+.so-lights i:nth-child(4n + 1) { --c: var(--s-primary, oklch(0.52 0.22 22)); }
+.so-lights i:nth-child(4n + 2) { --c: var(--s-accent, oklch(0.85 0.14 85)); }
+.so-lights i:nth-child(4n + 3) { --c: var(--s-ok, oklch(0.74 0.17 150)); }
+.so-lights i:nth-child(4n + 4) { --c: var(--s-highlight, oklch(0.9 0.09 85)); }
+
+/* neve sutil */
+.so-snow {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  overflow: hidden;
+}
+.so-snow i {
+  position: absolute;
+  top: -5vh;
+  left: var(--x);
+  width: var(--s);
+  height: var(--s);
+  border-radius: 50%;
+  background: oklch(1 0 0 / 0.75);
+  opacity: 0;
+  animation: so-fall var(--dur) linear infinite;
+  animation-delay: var(--dl);
+}
+
+/* =========================================================================
+   SÃO JOÃO · bandeirolas + fagulhas
+   ========================================================================= */
+.so-june { pointer-events: none; }
+
+/* varal de bandeirolas no topo (abaixo do header: z 40 < 50) */
+.so-flags {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  display: flex;
+  justify-content: space-around;
+  padding: 0 0.25rem;
+  height: 2rem;
+}
+.so-flags::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 2px;
+  background: oklch(0.66 0.08 80); /* barbante */
+}
+.so-flags i {
+  --f: var(--s-flag-1, oklch(0.65 0.23 27));
+  display: block;
+  width: 1.15rem;
+  height: 1.5rem;
+  margin-top: 2px;
+  background: var(--f);
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  transform-origin: 50% 0;
+  animation: so-flag 3.4s ease-in-out infinite alternate;
+  animation-delay: calc(var(--i) * -0.29s);
+}
+.so-flags i:nth-child(5n + 1) { --f: var(--s-flag-1, oklch(0.65 0.23 27)); }
+.so-flags i:nth-child(5n + 2) { --f: var(--s-flag-2, oklch(0.87 0.17 92)); }
+.so-flags i:nth-child(5n + 3) { --f: var(--s-flag-3, oklch(0.7 0.18 145)); }
+.so-flags i:nth-child(5n + 4) { --f: var(--s-flag-4, oklch(0.65 0.17 245)); }
+.so-flags i:nth-child(5n + 5) { --f: var(--s-flag-5, oklch(0.72 0.22 350)); }
+
+/* fagulhas de fogueira subindo */
+.so-embers {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  overflow: hidden;
+}
+.so-embers i {
+  position: absolute;
+  bottom: -2vh;
+  left: var(--x);
+  width: var(--s);
+  height: var(--s);
+  border-radius: 50%;
+  background: var(--s-primary, oklch(0.66 0.21 42));
+  box-shadow: 0 0 8px 1px color-mix(in oklab, var(--s-accent, oklch(0.86 0.17 90)) 80%, transparent);
+  opacity: 0;
+  animation: so-ember var(--dur) ease-out infinite;
+  animation-delay: var(--dl);
+}
+
+/* celular: menos lâmpadas / bandeirolas / partículas */
+@media (max-width: 639px) {
+  .so-lights i:nth-child(even) { display: none; }
+  .so-flags i:nth-child(even) { display: none; }
+  .so-snow i:nth-child(n + 9) { display: none; }
+  .so-embers i:nth-child(n + 7) { display: none; }
+}
+
+/* =========================================================================
+   KEYFRAMES
+   ========================================================================= */
+@keyframes so-in { from { opacity: 0; transform: translateY(16px) scale(0.96); } to { opacity: 1; transform: none; } }
+@keyframes so-pulse { 0% { opacity: 0.7; transform: scale(1); } 70%, 100% { opacity: 0; transform: scale(1.06, 1.2); } }
+@keyframes so-twinkle { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+@keyframes so-flag { from { transform: rotate(-5deg); } to { transform: rotate(5deg); } }
+@keyframes so-fall {
+  0% { opacity: 0; transform: translate3d(0, 0, 0); }
+  10% { opacity: 0.8; }
+  90% { opacity: 0.8; }
+  100% { opacity: 0; transform: translate3d(var(--dx), 105vh, 0); }
+}
+@keyframes so-confetti {
+  0% { opacity: 0; transform: translate3d(0, 0, 0) rotate(0deg); }
+  8% { opacity: 0.85; }
+  92% { opacity: 0.85; }
+  100% { opacity: 0; transform: translate3d(var(--dx), 108vh, 0) rotate(var(--r)); }
+}
+@keyframes so-ember {
+  0% { opacity: 0; transform: translate3d(0, 0, 0) scale(1); }
+  12% { opacity: 0.9; }
+  100% { opacity: 0; transform: translate3d(var(--dx), -55vh, 0) scale(0.3); }
+}
+
+/* =========================================================================
+   Acessibilidade: menos movimento
+   ========================================================================= */
+@media (prefers-reduced-motion: reduce) {
+  .so-promo { animation: none; }
+  .so-promo::after { display: none; }
+  .so-lights i,
+  .so-flags i { animation: none; }
+  .so-snow,
+  .so-confetti,
+  .so-embers { display: none; } /* sem partículas em movimento */
+}

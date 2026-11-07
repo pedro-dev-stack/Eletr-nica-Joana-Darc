@@ -4,15 +4,32 @@
    (Sem órbitas, sem scanner, sem marcas.)
    Prefixo .jh- (sem conflito). Só transform/opacity animam (GPU).
    will-change só enquanto a hero está visível (data-live).
+
+   TEMAS SAZONAIS: as cores vêm dos tokens --s-* (seasons.css). Os valores
+   depois da vírgula são o tema padrão, então a hero continua idêntica se o
+   seasons.css não estiver carregado. Decorações de fundo por temporada
+   ficam em .jh-season (escondidas no tema padrão).
    ========================================================================= */
 
 .jh {
-  --jh-blue: oklch(0.62 0.22 258);
-  --jh-indigo: oklch(0.5 0.22 275);
-  --jh-cyan: oklch(0.84 0.14 200);
-  --jh-gold: oklch(0.88 0.18 95);
-  --jh-green: oklch(0.8 0.22 150);
-  --jh-ink: oklch(0.075 0.025 255);
+  --jh-blue: var(--s-primary, oklch(0.62 0.22 258));
+  --jh-indigo: var(--s-primary-deep, oklch(0.5 0.22 275));
+  --jh-cyan: var(--s-highlight, oklch(0.84 0.14 200));
+  --jh-gold: var(--s-accent, oklch(0.88 0.18 95));
+  --jh-gold-deep: var(--s-accent-deep, oklch(0.78 0.17 80));
+  --jh-green: var(--s-ok, oklch(0.8 0.22 150));
+  --jh-ink: var(--s-ink, oklch(0.075 0.025 255));
+  --jh-surface: var(--s-surface, oklch(0.16 0.04 258));
+  --jh-glow: var(--s-glow, var(--jh-blue));
+  --jh-cta-from: var(--s-cta-from, var(--jh-blue));
+  --jh-cta-to: var(--s-cta-to, var(--jh-indigo));
+  --jh-on-cta: var(--s-on-cta, #fff);
+
+  /* auroras do fundo (valores exatos do tema padrão como reserva) */
+  --jh-aur-1: var(--s-aurora-1, oklch(0.55 0.23 262 / 0.38));
+  --jh-aur-2: var(--s-aurora-2, oklch(0.7 0.14 200 / 0.26));
+  --jh-aur-3: var(--s-aurora-3, oklch(0.85 0.17 95 / 0.13));
+
   --jh-line: oklch(1 0 0 / 0.1);
   --jh-text: oklch(0.98 0 0);
   --jh-muted: oklch(0.74 0.02 255);
@@ -58,19 +75,19 @@
 .jh-aurora i:nth-child(1) {
   left: -25vmax;
   top: -10vmax;
-  background: radial-gradient(circle, oklch(0.55 0.23 262 / 0.38), transparent 62%);
+  background: radial-gradient(circle, var(--jh-aur-1), transparent 62%);
   animation: jh-drift-a 22s ease-in-out infinite alternate;
 }
 .jh-aurora i:nth-child(2) {
   right: -30vmax;
   top: 15vmax;
-  background: radial-gradient(circle, oklch(0.7 0.14 200 / 0.26), transparent 62%);
+  background: radial-gradient(circle, var(--jh-aur-2), transparent 62%);
   animation: jh-drift-b 26s ease-in-out infinite alternate;
 }
 .jh-aurora i:nth-child(3) {
   left: 25vmax;
   bottom: -45vmax;
-  background: radial-gradient(circle, oklch(0.85 0.17 95 / 0.13), transparent 62%);
+  background: radial-gradient(circle, var(--jh-aur-3), transparent 62%);
   animation: jh-drift-a 30s ease-in-out infinite alternate-reverse;
 }
 
@@ -96,8 +113,8 @@
   transform-origin: 50% 0;
   transform: rotateX(64deg);
   background-image:
-    linear-gradient(oklch(0.84 0.14 200 / 0.35) 1px, transparent 1px),
-    linear-gradient(90deg, oklch(0.84 0.14 200 / 0.35) 1px, transparent 1px);
+    linear-gradient(color-mix(in oklab, var(--jh-cyan) 35%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in oklab, var(--jh-cyan) 35%, transparent) 1px, transparent 1px);
   background-size: 64px 64px;
   animation: jh-floor 2.6s linear infinite;
 }
@@ -117,7 +134,7 @@
   stroke-linecap: round;
   stroke-linejoin: round;
 }
-.jh-traces .base { stroke: oklch(0.62 0.22 258 / 0.3); }
+.jh-traces .base { stroke: color-mix(in oklab, var(--jh-blue) 30%, transparent); }
 .jh-traces .pulse {
   stroke: var(--jh-cyan);
   stroke-dasharray: 14 100;
@@ -127,7 +144,7 @@
 }
 .jh-traces .pulse:nth-of-type(2) { animation-delay: 1.2s; stroke: var(--jh-gold); filter: drop-shadow(0 0 4px var(--jh-gold)); }
 .jh-traces .pulse:nth-of-type(3) { animation-delay: 2.1s; }
-.jh-traces circle { fill: var(--jh-ink); stroke: oklch(0.62 0.22 258 / 0.7); stroke-width: 1.4; }
+.jh-traces circle { fill: var(--jh-ink); stroke: color-mix(in oklab, var(--jh-blue) 70%, transparent); stroke-width: 1.4; }
 @media (max-width: 767px) {
   .jh-traces { display: none; }
 }
@@ -141,13 +158,221 @@
   height: 560px;
   margin: -280px 0 0 -280px;
   border-radius: 50%;
-  background: radial-gradient(circle, oklch(0.84 0.14 200 / 0.13), transparent 62%);
+  background: radial-gradient(circle, color-mix(in oklab, var(--jh-cyan) 13%, transparent), transparent 62%);
   transform: translate3d(var(--mx), var(--my), 0);
   transition: transform 0.45s var(--jh-ease), opacity 0.4s;
   opacity: 0;
 }
 @media (hover: hover) {
   .jh:hover .jh-spot { opacity: 1; }
+}
+
+/* =========================================================================
+   DECORAÇÃO SAZONAL DO FUNDO
+   Escondida no tema padrão. [data-season] vem do <html> (layout.tsx).
+   ========================================================================= */
+.jh-season {
+  position: absolute;
+  inset: 0;
+  display: none;
+  overflow: hidden;
+}
+[data-season="black-friday"] .jh-season--bf { display: block; }
+[data-season="christmas"] .jh-season--xmas { display: block; }
+[data-season="sao-joao"] .jh-season--june { display: block; }
+[data-season="customer-week"] .jh-season--love { display: block; }
+[data-season="new-year-sale"] .jh-season--ny { display: block; }
+
+/* ---------- Black Friday: letreiro neon em movimento ---------- */
+.jh-bf-row {
+  position: absolute;
+  left: -10%;
+  width: 120%;
+  overflow: hidden;
+  transform: rotate(-6deg);
+  font-family: var(--font-serif, serif);
+  font-size: clamp(3.4rem, 11vw, 8.5rem);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  color: transparent;
+  -webkit-text-stroke: 1.5px color-mix(in oklab, var(--jh-gold) 26%, transparent);
+  opacity: 0.9;
+}
+.jh-bf-row--a { top: 12%; }
+.jh-bf-row--b { bottom: 8%; -webkit-text-stroke-color: color-mix(in oklab, var(--jh-cyan) 20%, transparent); }
+.jh-bf-track {
+  display: flex;
+  width: max-content;
+  animation: jh-marquee 60s linear infinite;
+}
+.jh-bf-row--b .jh-bf-track { animation-direction: reverse; animation-duration: 75s; }
+.jh-bf-track span { flex: none; padding-right: 0.4em; }
+
+/* ---------- Natal: bolas penduradas ---------- */
+.jh-bauble {
+  position: absolute;
+  top: 0;
+  left: var(--x);
+  width: 1px;
+  height: var(--len);
+  background: color-mix(in oklab, var(--jh-gold) 55%, transparent);
+  transform-origin: 50% 0;
+  animation: jh-sway 5.5s ease-in-out infinite alternate;
+  animation-delay: var(--dl);
+}
+.jh-bauble i {
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  width: var(--s);
+  aspect-ratio: 1;
+  margin-left: calc(var(--s) / -2);
+  border-radius: 50%;
+  background: var(--c);
+  box-shadow:
+    inset -0.3rem -0.35rem 0.6rem oklch(0 0 0 / 0.35),
+    inset 0.2rem 0.2rem 0.4rem oklch(1 0 0 / 0.4),
+    0 0 22px color-mix(in oklab, var(--c) 45%, transparent);
+}
+/* tampinha dourada */
+.jh-bauble i::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -0.32rem;
+  width: 28%;
+  height: 0.38rem;
+  margin-left: -14%;
+  border-radius: 2px;
+  background: var(--jh-gold);
+}
+
+/* ---------- Natal: luzes desfocadas (bokeh) ---------- */
+.jh-bokeh i {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--s);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: color-mix(in oklab, var(--c) 16%, transparent);
+  animation: jh-twinkle 4.5s ease-in-out infinite;
+  animation-delay: var(--dl);
+}
+
+/* ---------- São João: balões de papel + brilho de fogueira ---------- */
+/* clarão quente de fogueira lá embaixo */
+.jh-season--june::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -32%;
+  width: 78%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    color-mix(in oklab, var(--jh-gold) 24%, transparent),
+    color-mix(in oklab, var(--jh-blue) 14%, transparent) 38%,
+    transparent 66%
+  );
+  transform: translateX(-50%);
+  animation: jh-flicker 3.2s ease-in-out infinite;
+}
+.jh-balloon {
+  position: absolute;
+  bottom: -14rem;
+  left: var(--x);
+  width: var(--s);
+  animation: jh-balloon var(--dur) linear infinite;
+  animation-delay: var(--dl);
+}
+.jh-balloon i {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border-radius: 50% 50% 46% 46% / 58% 58% 42% 42%;
+  background: var(--c);
+  box-shadow:
+    inset -0.5rem -0.6rem 1rem oklch(0 0 0 / 0.25),
+    inset 0.4rem 0.4rem 0.8rem oklch(1 0 0 / 0.25);
+  transform-origin: 50% 100%;
+  animation: jh-sway 4.2s ease-in-out infinite alternate;
+}
+/* gomo mais claro */
+.jh-balloon i::before {
+  content: "";
+  position: absolute;
+  top: 6%;
+  bottom: 6%;
+  left: 38%;
+  width: 24%;
+  border-radius: 50%;
+  background: oklch(1 0 0 / 0.16);
+}
+/* chama do balão */
+.jh-balloon::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  width: 16%;
+  height: 0.9rem;
+  margin-left: -8%;
+  border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%;
+  background: var(--jh-gold);
+  box-shadow: 0 0 14px 4px color-mix(in oklab, var(--jh-gold) 60%, transparent);
+  animation: jh-flame 0.7s ease-in-out infinite alternate;
+}
+
+/* ---------- Semana do Cliente: corações flutuando + brilhos ---------- */
+.jh-heart {
+  position: absolute;
+  bottom: -3rem;
+  left: var(--x);
+  width: var(--s);
+  height: var(--s);
+  color: var(--c);
+  opacity: 0;
+  animation: jh-heart var(--dur) ease-in infinite;
+  animation-delay: var(--dl);
+}
+.jh-heart svg { display: block; width: 100%; height: 100%; fill: currentColor; }
+
+/* ---------- Liquida de Ano Novo: letreiro invertido + brilhos ---------- */
+.jh-season--ny .jh-bf-row {
+  transform: rotate(5deg);
+  -webkit-text-stroke-color: color-mix(in oklab, var(--jh-blue) 34%, transparent);
+}
+.jh-season--ny .jh-bf-row--b { -webkit-text-stroke-color: color-mix(in oklab, var(--jh-gold) 26%, transparent); }
+
+/* brilho de 4 pontas (Semana do Cliente e Liquida) */
+.jh-spark {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--s);
+  aspect-ratio: 1;
+  background: var(--c);
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+  opacity: 0;
+  animation: jh-spark 3.6s ease-in-out infinite;
+  animation-delay: var(--dl);
+}
+
+/* celular: menos elementos (mais leve, mais limpo) */
+@media (max-width: 639px) {
+  .jh-balloon:nth-child(n + 4) { display: none; }
+  .jh-heart:nth-child(n + 6) { display: none; }
+  .jh-spark:nth-child(n + 6) { display: none; }
+}
+@media (max-width: 639px) {
+  .jh-bauble:nth-child(n + 5) { display: none; }   /* sobram 3 bolas (o 1º filho é o bokeh) */
+  .jh-bokeh i:nth-child(n + 5) { display: none; }
+  .jh-bf-row--b { display: none; }
 }
 
 /* fora da tela: pausa todos os loops decorativos */
@@ -157,6 +382,15 @@
 .jh[data-live="false"] .jh-rotor span,
 .jh[data-live="false"] .jh-frame::before,
 .jh[data-live="false"] .jh-cta::before,
+.jh[data-live="false"] .jh-bf-track,
+.jh[data-live="false"] .jh-bauble,
+.jh[data-live="false"] .jh-bokeh i,
+.jh[data-live="false"] .jh-balloon,
+.jh[data-live="false"] .jh-balloon i,
+.jh[data-live="false"] .jh-balloon::after,
+.jh[data-live="false"] .jh-season--june::before,
+.jh[data-live="false"] .jh-heart,
+.jh[data-live="false"] .jh-spark,
 .jh[data-live="false"] .jh-dot::after { animation-play-state: paused; }
 
 /* =========================================================================
@@ -210,7 +444,7 @@
   margin-bottom: 1.75rem;
   border-radius: 999px;
   border: 1px solid var(--jh-line);
-  background: oklch(0.16 0.04 258 / 0.6);
+  background: color-mix(in oklab, var(--jh-surface) 60%, transparent);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   font-size: 0.72rem;
@@ -225,7 +459,7 @@
   gap: 0.4rem;
   padding: 0.3rem 0.7rem;
   border-radius: 999px;
-  background: linear-gradient(135deg, var(--jh-gold), oklch(0.78 0.17 80));
+  background: linear-gradient(135deg, var(--jh-gold), var(--jh-gold-deep));
   color: oklch(0.15 0.03 255);
   font-weight: 800;
 }
@@ -291,7 +525,7 @@
   stroke-linecap: round;
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
-  filter: drop-shadow(0 0 6px oklch(0.88 0.18 95 / 0.7));
+  filter: drop-shadow(0 0 6px color-mix(in oklab, var(--jh-gold) 70%, transparent));
   animation: jh-draw 0.9s var(--jh-ease) 1.35s forwards;
 }
 
@@ -328,19 +562,19 @@
   overflow: hidden;
   font-size: 1rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--jh-on-cta);
   text-decoration: none;
-  background: linear-gradient(135deg, var(--jh-blue), var(--jh-indigo));
+  background: linear-gradient(135deg, var(--jh-cta-from), var(--jh-cta-to));
   box-shadow:
     inset 0 0 0 1px oklch(1 0 0 / 0.22),
-    0 16px 40px -10px oklch(0.62 0.22 258 / 0.85);
+    0 16px 40px -10px color-mix(in oklab, var(--jh-glow) 85%, transparent);
   transform: translate3d(var(--tx), var(--ty), 0);
   transition: transform 0.25s var(--jh-ease), box-shadow 0.3s;
 }
 .jh-cta:hover {
   box-shadow:
     inset 0 0 0 1px oklch(1 0 0 / 0.32),
-    0 20px 50px -8px oklch(0.62 0.22 258 / 1);
+    0 20px 50px -8px var(--jh-glow);
 }
 .jh-cta:active { transform: translate3d(var(--tx), var(--ty), 0) scale(0.96); }
 .jh-cta::before {
@@ -374,7 +608,7 @@
   padding: 1.05rem 1.5rem;
   border-radius: 999px;
   border: 1px solid var(--jh-line);
-  background: oklch(0.16 0.04 258 / 0.5);
+  background: color-mix(in oklab, var(--jh-surface) 50%, transparent);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   font-size: 1rem;
@@ -385,8 +619,8 @@
 }
 .jh-ghost:hover {
   transform: translateY(-3px);
-  border-color: oklch(0.88 0.18 95 / 0.6);
-  background: oklch(0.2 0.05 258 / 0.7);
+  border-color: color-mix(in oklab, var(--jh-gold) 60%, transparent);
+  background: color-mix(in oklab, var(--jh-surface) 70%, var(--jh-blue));
 }
 .jh-ghost svg { width: 1.1rem; height: 1.1rem; color: var(--jh-gold); }
 .jh-ghost:hover svg { animation: jh-nudge 0.9s ease-in-out infinite; }
@@ -411,14 +645,14 @@
   padding: 0.4rem 1rem 0.4rem 0.4rem;
   border-radius: 999px;
   border: 1px solid var(--jh-line);
-  background: oklch(0.16 0.04 258 / 0.45);
+  background: color-mix(in oklab, var(--jh-surface) 45%, transparent);
   font-size: 0.82rem;
   color: var(--jh-muted);
   transition: transform 0.3s var(--jh-spring), border-color 0.25s, color 0.25s;
 }
 .jh-pill:hover {
   transform: translateY(-3px);
-  border-color: oklch(0.84 0.14 200 / 0.55);
+  border-color: color-mix(in oklab, var(--jh-cyan) 55%, transparent);
   color: var(--jh-text);
 }
 .jh-pill i {
@@ -427,7 +661,11 @@
   width: 1.85rem;
   height: 1.85rem;
   border-radius: 50%;
-  background: linear-gradient(135deg, oklch(0.62 0.22 258 / 0.5), oklch(0.84 0.14 200 / 0.3));
+  background: linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--jh-blue) 50%, transparent),
+    color-mix(in oklab, var(--jh-cyan) 30%, transparent)
+  );
   box-shadow: inset 0 0 0 1px oklch(1 0 0 / 0.14);
 }
 .jh-pill svg { width: 0.95rem; height: 0.95rem; color: #fff; }
@@ -464,7 +702,9 @@
   overflow: hidden;
   padding: 2px;
   border-radius: 2rem;
-  box-shadow: 0 40px 90px -30px oklch(0.62 0.22 258 / 0.7), 0 0 0 1px oklch(1 0 0 / 0.04);
+  box-shadow:
+    0 40px 90px -30px color-mix(in oklab, var(--jh-glow) 70%, transparent),
+    0 0 0 1px oklch(1 0 0 / 0.04);
 }
 .jh-frame::before {
   content: "";
@@ -488,8 +728,8 @@
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(to top, oklch(0.07 0.03 255 / 0.92) 0%, oklch(0.07 0.03 255 / 0.1) 45%, transparent 70%),
-    linear-gradient(135deg, oklch(0.5 0.22 275 / 0.18), transparent 45%);
+    linear-gradient(to top, color-mix(in oklab, var(--jh-ink) 92%, transparent) 0%, color-mix(in oklab, var(--jh-ink) 10%, transparent) 45%, transparent 70%),
+    linear-gradient(135deg, color-mix(in oklab, var(--jh-indigo) 18%, transparent), transparent 45%);
   pointer-events: none;
 }
 
@@ -519,8 +759,8 @@
   gap: 0.5rem;
   padding: 0.3rem 0.8rem;
   border-radius: 999px;
-  border: 1px solid oklch(0.84 0.14 200 / 0.4);
-  background: oklch(0.1 0.03 255 / 0.65);
+  border: 1px solid color-mix(in oklab, var(--jh-cyan) 40%, transparent);
+  background: color-mix(in oklab, var(--jh-ink) 65%, transparent);
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   font-family: ui-monospace, monospace;
@@ -565,7 +805,7 @@
   padding: 0.7rem 0.85rem;
   border-radius: 1rem;
   border: 1px solid var(--jh-line);
-  background: oklch(0.1 0.03 255 / 0.65);
+  background: color-mix(in oklab, var(--jh-ink) 65%, transparent);
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
 }
@@ -635,6 +875,30 @@
 @keyframes jh-sweep { 0% { transform: translateX(-120%); } 55%, 100% { transform: translateX(120%); } }
 @keyframes jh-ping { 75%, 100% { transform: scale(2.6); opacity: 0; } }
 @keyframes jh-nudge { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
+@keyframes jh-marquee { to { transform: translate3d(-50%, 0, 0); } }
+@keyframes jh-sway { from { transform: rotate(-3.5deg); } to { transform: rotate(3.5deg); } }
+@keyframes jh-twinkle { 0%, 100% { opacity: 0.35; transform: scale(0.94); } 50% { opacity: 1; transform: scale(1.06); } }
+@keyframes jh-balloon {
+  0% { opacity: 0; transform: translate3d(0, 0, 0); }
+  8% { opacity: 0.92; }
+  88% { opacity: 0.92; }
+  100% { opacity: 0; transform: translate3d(var(--dx), -125svh, 0); }
+}
+@keyframes jh-flame { from { transform: scale(0.85, 0.9); opacity: 0.8; } to { transform: scale(1.1, 1.15); opacity: 1; } }
+@keyframes jh-flicker {
+  0%, 100% { opacity: 0.75; transform: translateX(-50%) scale(0.97); }
+  50% { opacity: 1; transform: translateX(-50%) scale(1.03); }
+}
+@keyframes jh-heart {
+  0% { opacity: 0; transform: translate3d(0, 0, 0) scale(0.7) rotate(-8deg); }
+  12% { opacity: 0.55; }
+  85% { opacity: 0.4; }
+  100% { opacity: 0; transform: translate3d(var(--dx), -110svh, 0) scale(1.1) rotate(10deg); }
+}
+@keyframes jh-spark {
+  0%, 100% { opacity: 0; transform: scale(0.3) rotate(0deg); }
+  50% { opacity: 0.95; transform: scale(1) rotate(45deg); }
+}
 /* rotor: 3 palavras + a primeira repetida para o loop ficar contínuo */
 @keyframes jh-rotor {
   0%, 27% { transform: translateY(0); }
@@ -658,4 +922,17 @@
   .jh-in { opacity: 1; }
   .jh-word { transform: none; }
   .jh-squig path { stroke-dashoffset: 0; }
+  .jh-bf-track,
+  .jh-bauble,
+  .jh-bokeh i,
+  .jh-season--june::before,
+  .jh-balloon,
+  .jh-balloon i,
+  .jh-balloon::after,
+  .jh-heart,
+  .jh-spark { animation: none !important; }
+  /* sem movimento: balões/corações somem (só decorativos), brilhos ficam fixos */
+  .jh-balloon,
+  .jh-heart { display: none; }
+  .jh-spark { opacity: 0.7; }
 }

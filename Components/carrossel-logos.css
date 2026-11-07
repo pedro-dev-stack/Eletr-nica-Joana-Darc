@@ -5,14 +5,19 @@
    - will-change apenas enquanto a seção está na tela.
    - Responsivo fluido (clamp + aspect-ratio), toque e mouse.
    Prefixo .br- (sem conflito).
+
+   TEMAS SAZONAIS: as cores vêm dos tokens --s-* (seasons.css). Os valores
+   depois da vírgula são o tema padrão. Fundo e cards são derivados de
+   --s-ink / --s-surface para manter o tom exato do padrão (fundo ≈ 0.12,
+   card ≈ 0.17) e ainda acompanhar cada temporada.
    ========================================================================= */
 
 .br {
-  --br-blue: oklch(0.62 0.22 258);
-  --br-gold: oklch(0.88 0.18 95);
-  --br-green: oklch(0.8 0.2 155);
-  --br-ink: oklch(0.12 0.02 256);
-  --br-surface: oklch(0.17 0.025 258);
+  --br-blue: var(--s-primary, oklch(0.62 0.22 258));
+  --br-gold: var(--s-accent, oklch(0.88 0.18 95));
+  --br-green: var(--s-ok, oklch(0.8 0.2 155));
+  --br-ink: color-mix(in oklab, var(--s-ink, oklch(0.08 0.025 255)) 33%, var(--s-surface, oklch(0.14 0.035 255)));
+  --br-surface: color-mix(in oklab, var(--s-surface, oklch(0.14 0.035 255)) 96.5%, white);
   --br-line: oklch(1 0 0 / 0.1);
   --br-line-strong: oklch(1 0 0 / 0.22);
   --br-text: oklch(0.98 0 0);
